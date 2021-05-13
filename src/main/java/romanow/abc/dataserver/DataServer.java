@@ -43,7 +43,6 @@ public class DataServer {
     public APICommon common=null;                   // API общих функций сервера
     public APINotification notify=null;             // API уведомлений
     public APIAdmin admin = null;                   // API админитрирования
-    ConstList constList = new ConstList();          // Константы из ValuesBase
     private String dataServerFileDir="";            // Корневой каталог артефактов сервера
     int port;                                       // Номер порта
     StringFIFO consoleLog = new StringFIFO(ValuesBase.ConsoleLogSize);
@@ -145,7 +144,6 @@ public class DataServer {
         return restartServer(force);
         }
      public boolean restartServer(boolean force){
-        constList.createConstList();
             try {
                 if (!mongoDB.openDB(port)){
                     System.out.println("Mongo is not open");

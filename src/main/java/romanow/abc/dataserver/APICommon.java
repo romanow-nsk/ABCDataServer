@@ -315,13 +315,12 @@ public class APICommon extends APIBase{
     RouteWrap apiConstAll = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
-            return db.constList;
+            return ValuesBase.constMap.getConstAll();
         }};
     RouteWrap apiConstByGroups = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
-            ArrayList<ConstList> out = db.constList.getByGroups();
-            return out;
+            return ValuesBase.constMap.getConstByGroups();
         }};
     RouteWrap apiDebugToken= new RouteWrap(false) {
         @Override
