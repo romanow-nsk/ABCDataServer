@@ -5,7 +5,6 @@ import romanow.abc.core.API.RestAPIBase;
 import romanow.abc.core.ServerState;
 import romanow.abc.core.UniException;
 import romanow.abc.core.Utils;
-import romanow.abc.core.constants.ConstList;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.base.BugMessage;
@@ -34,10 +33,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 // AJAX посылает post, а браузер - get
-public class DataServer {
+public class DataServer implements I_DataServer{
     //-------------------- Модель БД сервера --------------------------
     private I_ServerState masterBack=null;          // Обработчик событий ServerState
-    I_MongoDB mongoDB = new MongoDB36();            // Коннектор MongoDB
+    protected I_MongoDB mongoDB = new MongoDB36();            // Коннектор MongoDB
     public APIUser users = null;                    // API работы с пользователями
     public APIArtifact files = null;                // API работы с артефактами
     public APICommon common=null;                   // API общих функций сервера
@@ -60,25 +59,6 @@ public class DataServer {
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
-    //------------------ Процессор событий
-    private I_DataServerBack eventProcessor = new I_DataServerBack() {
-        @Override
-        public long createEvent(int type, int level, String title, String comment, long artId) {
-            return 0;
-            }
-        @Override
-        public void onClock() {}
-        @Override
-        public void onStart() {}
-        @Override
-        public void onShutdown() {}
-        };
-    public void setEventProcessor(I_DataServerBack processor){
-        eventProcessor = processor;
-        }
-    public I_DataServerBack getDataServerBack(){
-        return eventProcessor;
-        }
     //-------------------------------------------------------------------------
     private void getAnswer(Process p){
         new Thread(){
@@ -300,7 +280,7 @@ public class DataServer {
             } catch (UniException e) { System.out.println("StartServer: "+e.toString());}
         openLogFile();
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Старт сервера","");
-        eventProcessor.onStart();
+        onStart();
         return true;
         }
     public void addToLog(String ss){
@@ -324,7 +304,7 @@ public class DataServer {
             sessions.shutdown();
         isRun=false;
         serverBack.onStateChanged(common.getServerStateRight());
-        eventProcessor.onShutdown();
+        onShutdown();
         }
     public void setObjectTrace(boolean objectTrace) {
         this.objectTrace = objectTrace;
@@ -590,11 +570,17 @@ public class DataServer {
     //----------------------------  Счетчик ошибок ПЛК ----------------------------------
     // TODO - обработка ошибок
     public long createEvent(int type,int level,String title, String comment){
-        return eventProcessor.createEvent(type,level,title,comment,0);
+        return createEvent(type,level,title,comment,0);
         }
+    @Override
     public long createEvent(int type,int level,String title, String comment,long artId){
-        return eventProcessor.createEvent(type,level,title,comment,artId);
-        }
+        return 0; }
+    @Override
+    public void onClock() {}
+    @Override
+    public void onStart() {}
+    @Override
+    public void onShutdown(){}
 
     public static void main(String argv[]){
         new DataServer();

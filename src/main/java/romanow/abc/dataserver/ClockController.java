@@ -55,7 +55,7 @@ public class ClockController<T extends DataServer> extends Thread{
         shutdown=true;
         }
     public void clockCycle(){
-        db.getDataServerBack().onClock();
+        db.onClock();
         }
     private final static int hourX=19;
     private final static int minuteX=45;

@@ -1,9 +1,9 @@
 package romanow.abc.dataserver;
 
 public class HTTPError {
-    final boolean error;
-    final int code;
-    final String message;
+    public final boolean error;
+    public final int code;
+    public final String message;
     public HTTPError(int code, String message) {
         this.error = true;
         this.code = code;
