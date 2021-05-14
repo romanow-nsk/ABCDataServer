@@ -187,12 +187,14 @@ public class APIAdmin extends APIBase{
             bat.close();
             String batName = db.port+"_"+ValuesBase.DeployScriptName+(isWin ? ".bat" : ".sh");
             bat = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(batName)));
+            String serverName = ValuesBase.env().applicationName(ValuesBase.AppNameServerJar);
+            String className = ValuesBase.env().applicationClassName(ValuesBase.ClassNameConsoleServer);
             if (isWin) {
                 bat.write("timeout /t " + ValuesBase.ServerRebootDelay);
                 bat.newLine();
-                bat.write("copy " + db.port + "\\" + ValuesBase.env().serverName() + " " + db.port + "_" + ValuesBase.env().serverName());
+                bat.write("copy " + db.port + "\\" + serverName + " " + db.port + "_" + serverName);
                 bat.newLine();
-                bat.write("java "+(mb!=0 ? " -Xmx"+mb+"m" : "")+" -cp " + db.port + "_" + ValuesBase.env().serverName() + " romanow.abc.dataserver.ConsoleServer " + db.port+" none");
+                bat.write("java "+(mb!=0 ? " -Xmx"+mb+"m" : "")+" -cp " + db.port + "_" + serverName + " "+className+" " + db.port+" none");
                 bat.newLine();
                 bat.write("del /q " + db.port+"_"+ValuesBase.DeployScriptName+".lock");
                 bat.newLine();
@@ -202,9 +204,9 @@ public class APIAdmin extends APIBase{
                 bat.newLine();
                 bat.write("sleep " + ValuesBase.ServerRebootDelay);
                 bat.newLine();
-                bat.write("cp -f " + db.port + "/" + ValuesBase.env().serverName() + " " + db.port + "_" + ValuesBase.env().serverName());
+                bat.write("cp -f " + db.port + "/" + serverName + " " + db.port + "_" + serverName);
                 bat.newLine();
-                bat.write("nohup java "+(mb!=0 ? " -Xmx"+mb+"m" : "")+" -cp " + db.port + "_" + ValuesBase.env().serverName() + " romanow.abc.dataserver.ConsoleServer " + db.port+" none "+(mb!=0 ? " -Mxmx"+mb+"m" : "")+" &");
+                bat.write("nohup java "+(mb!=0 ? " -Xmx"+mb+"m" : "")+" -cp " + db.port + "_" + serverName + " "+className+" " + db.port+" none "+(mb!=0 ? " -Mxmx"+mb+"m" : "")+" &");
                 bat.newLine();
                 bat.write("rm -f " + db.port+"_"+ValuesBase.DeployScriptName+".lock");
                 bat.newLine();
@@ -378,7 +380,7 @@ public class APIAdmin extends APIBase{
             ParamInt blockSize = new ParamInt(req,res,"blocksize",0);
             if (!blockSize.isValid())
                 return null;
-            Artifact art = new Artifact("mongo-"+ValuesBase.env().mongoDBName()+db.port+"-"+ Utils.nDigits(cc.month(),2)+Utils.nDigits(cc.day(),2)+"-"+db.common.getServerState().getReleaseNumber()+
+            Artifact art = new Artifact("mongo-"+ValuesBase.env().applicationName(ValuesBase.AppNameDBName)+db.port+"-"+ Utils.nDigits(cc.month(),2)+Utils.nDigits(cc.day(),2)+"-"+db.common.getServerState().getReleaseNumber()+
                     (xlsx.getValue() ?".xlsx" : ".xls"),0);
             art.setName("mongo:"+db.port);
             int artType = ArtifactTypes.getArtifactType(art.getOriginalExt());
