@@ -67,7 +67,7 @@ public class ConsoleServer {
         gblEncoding = System.getProperty("file.encoding");
         utf8 = gblEncoding.equals("UTF-8");
         asteriskBack.onEvent();
-        final LogStream log = new LogStream(utf8, new I_String() {
+        final LogStream log = new LogStream(utf8, dataServer.getConsoleLog(), new I_String() {
             @Override
             public void onEvent(String ss) {
                 dataServer.addToLog(ss);

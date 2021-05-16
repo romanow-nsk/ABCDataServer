@@ -44,7 +44,7 @@ public class DataServer implements I_DataServer{
     public APIAdmin admin = null;                   // API админитрирования
     private String dataServerFileDir="";            // Корневой каталог артефактов сервера
     int port;                                       // Номер порта
-    StringFIFO consoleLog = new StringFIFO(ValuesBase.ConsoleLogSize);
+    private StringFIFO consoleLog = new StringFIFO(ValuesBase.ConsoleLogSize);
     private ServerFileAcceptor deployer=null;       // Приемник обновления через TCP
     SessionController sessions = null;              // Контроллер сессий
     private String debugToken = "";                 // Дежурный токен
@@ -60,6 +60,8 @@ public class DataServer implements I_DataServer{
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
     //-------------------------------------------------------------------------
+    public StringFIFO getConsoleLog() {
+        return consoleLog; }
     private void getAnswer(Process p){
         new Thread(){
             public void run() {

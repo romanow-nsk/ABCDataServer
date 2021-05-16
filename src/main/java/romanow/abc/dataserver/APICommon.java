@@ -571,7 +571,7 @@ public class APICommon extends APIBase{
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             ParamInt count = new ParamInt(req,res,"count");
             if (!count.isValid()) return null;
-            StringList list =  db.consoleLog.getStrings(count.getValue());
+            StringList list =  db.getConsoleLog().getStrings(count.getValue());
             return list;
         }};
     //------------------- Общий код для операций list/get/add/update----------------------------
