@@ -6,6 +6,7 @@ import romanow.abc.core.ServerState;
 import romanow.abc.core.UniException;
 import romanow.abc.core.Utils;
 import romanow.abc.core.constants.ValuesBase;
+import romanow.abc.core.dll.DLLModule;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.base.BugMessage;
 import romanow.abc.core.entity.base.WorkSettingsBase;
@@ -54,6 +55,7 @@ public class DataServer implements I_DataServer{
     private BufferedWriter logFile=null;            //
     private OwnDateTime logFileCreateDate;          // Время создания лог-файла
     private OwnDateTime logFileWriteDate;           // Время последней записи в лог-файл
+    private DLLModule rootModule=new DLLModule();
     protected ClockController clock=null;           // Поток периодических операицй
     public ErrorCounter deviceErrors = new ErrorCounter();              // Счетчик повторных ошибок
     public DataServer(){}
@@ -281,6 +283,15 @@ public class DataServer implements I_DataServer{
                 });
             } catch (UniException e) { System.out.println("StartServer: "+e.toString());}
         openLogFile();
+        //-------------------------------------- Загрузка корневого модуля -----------------------------
+        ServerJarClassLoader loader = new ServerJarClassLoader(true,this);
+        loader.loadClasses();
+        Pair<String, DLLModule> list = loader.getClassesList();
+        System.out.println("Загрузка корневого модуля");
+        if (list.o1!=null)
+             System.out.println(list.o1);
+        System.out.println(list.o2);
+        //----------------------------------------------------------------------------------------------
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Старт сервера","");
         onStart();
         return true;
