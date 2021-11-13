@@ -286,7 +286,7 @@ public class DataServer implements I_DataServer{
         //-------------------------------------- Загрузка корневого модуля -----------------------------
         ServerJarClassLoader loader = new ServerJarClassLoader(true,this);
         loader.loadClasses();
-        Pair<String, DLLModule> list = loader.getClassesList();
+        Pair<String, DLLModule> list = loader.getClassesList(ValuesBase.env().applicationClassName(ValuesBase.ClassNameEnvironment));
         System.out.println("Загрузка корневого модуля");
         if (list.o1!=null)
              System.out.println(list.o1);

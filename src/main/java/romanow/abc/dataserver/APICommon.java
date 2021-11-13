@@ -25,15 +25,17 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class APICommon extends APIBase{
+public class APICommon extends APIBase {
     private WorkSettingsBase workSettings = null;
     private ServerState serverState = null;     // Ленивый ServerState
+
     public boolean addUser(User tt) throws UniException {
         if (!db.mongoDB.isOpen())
             return false;
         db.mongoDB.add(tt);
         return true;
-        }
+    }
+
     public APICommon(DataServer db0) {
         super(db0);
         //------------------------------------------------- Таблица API ------------------------------------------------
@@ -66,11 +68,11 @@ public class APICommon extends APIBase{
         spark.Spark.get("/api/debug/consolelog", routeGetConsoleLog);
         spark.Spark.get("/api/const/all", apiConstAll);
         spark.Spark.get("/api/const/bygroups", apiConstByGroups);
-        spark.Spark.get("/api/names/get",routeNamesByPattern);
-        spark.Spark.get("/api/helpfile/list",apiHelpFileList);
-        Spark.post("/api/entity/artifactlist/add",routeArtifactToList);
-        Spark.post("/api/entity/artifactlist/remove",routeArtifactFromList);
-        Spark.post("/api/entity/artifact/replace",routeArtifactReplace);
+        spark.Spark.get("/api/names/get", routeNamesByPattern);
+        spark.Spark.get("/api/helpfile/list", apiHelpFileList);
+        Spark.post("/api/entity/artifactlist/add", routeArtifactToList);
+        Spark.post("/api/entity/artifactlist/remove", routeArtifactFromList);
+        Spark.post("/api/entity/artifact/replace", routeArtifactReplace);
         spark.Spark.get("/api/worksettings/get/int", apiWorkSettingsGetInt);
         spark.Spark.get("/api/worksettings/get/string", apiWorkSettingsGetString);
         spark.Spark.get("/api/worksettings/get/boolean", apiWorkSettingsGetBoolean);
@@ -101,7 +103,7 @@ public class APICommon extends APIBase{
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
-            }
+                }
             ParamString paths = new ParamString(req,res,"paths","");
             String pathsList = paths.isValid() ?  paths.getValue() : "";
             EntityList<Entity> xx;
