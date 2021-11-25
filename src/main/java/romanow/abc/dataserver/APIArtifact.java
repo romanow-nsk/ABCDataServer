@@ -9,6 +9,7 @@ import romanow.abc.core.entity.artifacts.Artifact;
 import romanow.abc.core.entity.artifacts.ArtifactList;
 import romanow.abc.core.entity.artifacts.ArtifactTypes;
 import romanow.abc.core.entity.baseentityes.JEmpty;
+import romanow.abc.core.entity.baseentityes.JLong;
 import romanow.abc.core.entity.baseentityes.JString;
 import romanow.abc.core.mongo.DBQueryList;
 import romanow.abc.core.mongo.I_DBQuery;
@@ -18,6 +19,7 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import romanow.abc.core.utils.OwnDateTime;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -32,6 +34,7 @@ public class APIArtifact extends APIBase{
     public APIArtifact(DataServer db0){
         super(db0);
         Spark.post("/api/file/upload", "multipart/form-data", routeUpload);
+        Spark.post("/api/file/update", "multipart/form-data", routeUpdate);
         Spark.post("/api/file/uploadByName", "multipart/form-data", routeUploadByName);
         Spark.get("/api/file/load2", routeLoad2);
         Spark.get("/api/file/loadByName", routeLoadByName);
@@ -196,16 +199,27 @@ public class APIArtifact extends APIBase{
         return null;
     }
     /** Общий код загрузки артефакта */
+    public void update(Artifact art, Request request, Response response) throws Exception {
+        request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(db.dataServerFileDir()));
+        Part filePart = request.raw().getPart("file");
+        InputStream inputStream = filePart.getInputStream();
+        String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
+        File path = new File(dir);
+        if (!path.exists())
+            path.mkdir();
+        deleteArtifactFile(art);
+        art.setFileSize(filePart.getSize());
+        art.setDate(new OwnDateTime());             // Обновить время
+        OutputStream outputStream = new FileOutputStream(dir +"/"+art.createArtifactFileName());
+        IOUtils.copy(inputStream, outputStream);
+        filePart.delete();                      // Удалить временный после закачки
+        outputStream.close();
+        db.mongoDB.update(art);
+        System.out.println("Артефакт "+art);
+        }
+    /** Общий код загрузки артефакта */
     public Artifact upload(Request request, Response response) throws Exception {
             request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(db.dataServerFileDir()));
-            //Collection<Part> parts = request.raw().getParts();  //Line 50 where error is there
-            //for (Part part : parts) {
-            //    System.out.println("Name: " + part.getName());
-            //    System.out.println("Size: " + part.getSize());
-            //    System.out.println("Filename: " + part.getSubmittedFileName());
-            //    }
-            //String description = loadText(request.raw().getPart("description").getInputStream());
-            //String description = loadText(request.raw().getPart("description").getInputStream());
             ParamString nm = new ParamString(request,response,"description");
             if (!nm.isValid()) return null;
             String description = nm.getValue();
@@ -230,12 +244,28 @@ public class APIArtifact extends APIBase{
             convertArtifact(art);
             System.out.println("Артефакт "+art);
             return art;
-        }
+            }
     RouteWrap routeUpload = new RouteWrap() {
         @Override
         public Object _handle(Request request, Response response, RequestStatistic statistic) throws Exception {
             if (db.users.isReadOnly(request,response)) return null;
             Artifact art = upload(request,response);
+            return art;
+            }
+        };
+    RouteWrap routeUpdate = new RouteWrap() {
+        @Override
+        public Object _handle(Request request, Response response, RequestStatistic statistic) throws Exception {
+            if (db.users.isReadOnly(request,response)) return null;
+            ParamLong artId = new ParamLong(request,response,"artId");
+            if (!artId.isValid())
+                return null;
+            Artifact art = new Artifact();
+            if (!db.mongoDB.getById(art,artId.getValue())){
+                db.createHTTPError(response,ValuesBase.HTTPRequestError,"Ошибка сервера данных: файл не найден id="+artId.isValid());
+                return null;
+                }
+            update(art,request,response);
             return art;
             }
         };
