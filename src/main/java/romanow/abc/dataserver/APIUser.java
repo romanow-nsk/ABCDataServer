@@ -38,6 +38,7 @@ public class APIUser extends APIBase{
         spark.Spark.post("/api/user/add",apiAddUser);
         spark.Spark.post("/api/user/update",apiUserUpdate);
         spark.Spark.get("/api/user/account/get",apiUserAccount);
+        spark.Spark.get("/api/user/server/environment",apiServerEnvironment);
         }
     //-------------------------------------------------------------------------------------
     public void sendSecurityMessage(String message, Request req) throws UniException {
@@ -73,6 +74,14 @@ public class APIUser extends APIBase{
     }
 
     //-------------------------------------------------------------------------------------
+    RouteWrap apiServerEnvironment = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+        ArrayList<String> out = new ArrayList<>();
+        for(int i=0;i<ValuesBase.AppNameSize;i++)
+            out.add(ValuesBase.env().applicationName(i));
+        return out;
+        }};
     RouteWrap apiLogoff = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
