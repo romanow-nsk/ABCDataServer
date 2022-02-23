@@ -309,7 +309,7 @@ public class APIAdmin extends APIBase{
         }};
     public boolean exportToExcel(I_Excel ex){
         int i=0;
-        ArrayList<TableItem> olist = ValuesBase.EntityFactory.classList(true);
+        ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
         for(TableItem item : olist){
             if (!item.isTable || !item.isExportXLS())
                 continue;
@@ -326,7 +326,7 @@ public class APIAdmin extends APIBase{
         }
     public boolean exportToExcelBlocked(I_Excel ex, int blockSize){
         int i=0;
-        ArrayList<TableItem> olist = ValuesBase.EntityFactory.classList(true);
+        ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
         for(TableItem item : olist){
             if (!item.isTable)
                 continue;
@@ -482,7 +482,7 @@ public class APIAdmin extends APIBase{
                 return null;
             ParamString table = new ParamString(req,res,"table");
             if (!table.isValid()) return null;
-            Class zz = ValuesBase.EntityFactory.get(table.getValue());
+            Class zz = ValuesBase.EntityFactory().get(table.getValue());
             if (zz==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Нет класса для "+table.getValue());
                 return null;
@@ -576,7 +576,7 @@ public class APIAdmin extends APIBase{
         return rez.toString()+"\nссылки:\nGPS="+countGPS+"\nсостояния="+countState+"\nадреса="+countAddr+"\nартефакты="+countArt+"\n";
     }
     private String prepareOidRecords(){
-        Object olist[] = ValuesBase.EntityFactory.classList().toArray();
+        Object olist[] = ValuesBase.EntityFactory().classList().toArray();
         String out="";
         TableItem item=null;
         for(int i=0;i<olist.length;i++){
@@ -594,7 +594,7 @@ public class APIAdmin extends APIBase{
                 ent.setOid(maxOid+1);
                 db.mongoDB.nextOid(ent,true);
             } catch (Exception ee){
-                String ss = "Не могу создать "+ValuesBase.EntityFactory.get(item.clazz.getSimpleName())+"\n"+ee.toString()+"\n";
+                String ss = "Не могу создать "+ValuesBase.EntityFactory().get(item.clazz.getSimpleName())+"\n"+ee.toString()+"\n";
                 System.out.print(ss);
                 out+=ss+"\n";
             }
@@ -602,7 +602,7 @@ public class APIAdmin extends APIBase{
         return out;
     }
     private String squeezyTables(){
-        Object olist[] = ValuesBase.EntityFactory.classList().toArray();
+        Object olist[] = ValuesBase.EntityFactory().classList().toArray();
         String out="";
         TableItem item=null;
         for(int i=0;i<olist.length;i++){
@@ -626,7 +626,7 @@ public class APIAdmin extends APIBase{
         return out;
     }
     private String refreshTables(){
-        Object olist[] = ValuesBase.EntityFactory.classList().toArray();
+        Object olist[] = ValuesBase.EntityFactory().classList().toArray();
         String out="";
         TableItem item=null;
         for(int i=0;i<olist.length;i++){

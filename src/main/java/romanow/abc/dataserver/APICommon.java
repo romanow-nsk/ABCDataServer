@@ -99,7 +99,7 @@ public class APICommon extends APIBase {
             ParamInt plevel = new ParamInt(req,res,"level",0);
             ParamString cname = new ParamString(req,res,"classname","");
             String className = cname.isValid() ?  cname.getValue() : "";
-            Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
@@ -120,7 +120,7 @@ public class APICommon extends APIBase {
             ParamInt plevel = new ParamInt(req,res,"level",0);
             ParamString cname = new ParamString(req,res,"classname","");
             String className = cname.isValid() ?  cname.getValue() : "";
-            Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
@@ -147,7 +147,7 @@ public class APICommon extends APIBase {
             ParamInt plevel = new ParamInt(req,res,"level",0);
             ParamString cname = new ParamString(req,res,"classname","");
             String className = cname.isValid() ?  cname.getValue() : "";
-            Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
@@ -190,7 +190,7 @@ public class APICommon extends APIBase {
             int level = plevel.isValid() ?  plevel.getValue() : 0;
             ParamString cname = new ParamString(req,res,"classname","");
             String className = cname.isValid() ?  cname.getValue() : "";
-            Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
@@ -213,7 +213,7 @@ public class APICommon extends APIBase {
             if (!id.isValid()) return null;
             ParamString cname = new ParamString(req,res,"classname","");
             String className = cname.isValid() ?  cname.getValue() : "";
-            Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
             if (cc==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
                 return null;
@@ -224,7 +224,7 @@ public class APICommon extends APIBase {
             }
         };
     public int getEntityNumber(String className) throws Exception {
-        Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className);
+        Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
         if (cc==null)
             return -1;
         Entity uu = (Entity) cc.newInstance();
@@ -264,7 +264,7 @@ public class APICommon extends APIBase {
             String prefix = pref.getValue();
             if (prefix.length()==0){                                                // Явный префикс отсутствует
                 String key = ent.getClass().getSimpleName()+"."+pname.getValue();   // Найти в таблице префиксов
-                String zz = ValuesBase.PrefixMap.get(key);
+                String zz = ValuesBase.PrefixMap().get(key);
                 if (zz!=null)
                     prefix = zz+"_";
             }
@@ -282,7 +282,7 @@ public class APICommon extends APIBase {
             if (!entity.isValid()) return null;
             ParamString pattern = new ParamString(req, res, "pattern");
             if (!pattern.isValid()) return null;
-            Class zz = ValuesBase.EntityFactory.get(entity.getValue());
+            Class zz = ValuesBase.EntityFactory().get(entity.getValue());
             if (zz==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+entity.getValue());
                 return null;
@@ -317,12 +317,12 @@ public class APICommon extends APIBase {
     RouteWrap apiConstAll = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
-            return ValuesBase.constMap.getConstAll();
+            return ValuesBase.constMap().getConstAll();
         }};
     RouteWrap apiConstByGroups = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
-            return ValuesBase.constMap.getConstByGroups();
+            return ValuesBase.constMap().getConstByGroups();
         }};
     RouteWrap apiDebugToken= new RouteWrap(false) {
         @Override
@@ -555,7 +555,7 @@ public class APICommon extends APIBase {
         try {
             //-------------- По имени сущности ---------------------------------------------------------------------
             //cc = (Entity) Class.forName(entity.getValue()).newInstance();
-            Class zz = ValuesBase.EntityFactory.get(entity.getValue());
+            Class zz = ValuesBase.EntityFactory().get(entity.getValue());
             if (zz==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+entity.getValue());
                 }
@@ -732,7 +732,7 @@ public class APICommon extends APIBase {
         ParamString fieldName = new ParamString(req,res,"fieldname");
         if (!fieldName.isValid())
             return null;
-        Class cc = ValuesBase.EntityFactory.getClassForSimpleName(className.getValue());
+        Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className.getValue());
         if (cc==null){
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
             return null;
