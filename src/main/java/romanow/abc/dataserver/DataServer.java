@@ -158,7 +158,10 @@ public class DataServer implements I_DataServer{
         //https://gist.github.com/zikani03/7c82b34fbbc9a6187e9a CORS для Spark
         spark.Spark.before("/*", (request,response)->{
             response.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-            response.header("Access-Control-Allow-Origin", "*");
+            String accessControlAllowOrigin = request.headers("Access-Control-Allow-Origin");
+            if (accessControlAllowOrigin == null) {
+                response.header("Access-Control-Allow-Origin", "*");
+                }
             response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
             response.header("Access-Control-Allow-Credentials", "true");
             });
