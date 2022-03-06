@@ -155,17 +155,24 @@ public class APICommon extends APIBase {
             ParamString paths = new ParamString(req,res,"paths","");
             String pathsList = paths.isValid() ?  paths.getValue() : "";
             Entity entity = (Entity) cc.newInstance();
-            long lastId = db.mongoDB.lastOid(entity);
-            lastId -=number.getValue();
-            if (lastId<0) lastId=0;
+            long lastId = db.mongoDB.lastOid(entity);       // Номер первой свободной
+            long firstId = lastId - number.getValue();
+            if (lastId<0) lastId=1;
             EntityList<Entity> xx;
-            BasicDBObject query = new BasicDBObject(new BasicDBObject("oid", new BasicDBObject("$gte", lastId)));
+            List<BasicDBObject> obj = new ArrayList<BasicDBObject>();
+            obj.add(new BasicDBObject(new BasicDBObject("oid", new BasicDBObject("$gte", firstId))));
+            obj.add(new BasicDBObject("valid",true));
+            BasicDBObject query = new BasicDBObject();
+            query.put("$and", obj);
             xx = (EntityList<Entity>)db.mongoDB.getAllByQuery(entity,query,plevel.getValue(),pathsList,statistic);
             ArrayList<DBRequest> out = new ArrayList<>();
             Gson gson = new Gson();
-            int size = xx.size()-1;
-            for(int i=0;i<size;i++)
-                out.add(new DBRequest(xx.get(i),gson));
+            int size = xx.size();
+            for(Entity ent : xx) {
+                if (ent.getOid()==lastId)
+                    continue;
+                out.add(new DBRequest(ent, gson));
+                }
             return out;
         }};
     RouteWrap routeEntityUpdate = new RouteWrap() {      // Нельзя менять ТИП КИ
