@@ -328,7 +328,7 @@ public class APIAdmin extends APIBase{
         int i=0;
         ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
         for(TableItem item : olist){
-            if (!item.isTable)
+            if (!item.isTable || !item.isExportXLS())
                 continue;
             try {
                 Entity ent = (Entity) item.clazz.newInstance();
