@@ -305,6 +305,8 @@ public class APIAdmin extends APIBase{
             I_Excel xls = art.getOriginalExt().equals("xlsx") ? new ExcelX() : new Excel();
             db.clearDB();
             String zz = xls.load(db.dataServerFileDir()+"/"+art.createArtifactServerPath(),db.mongoDB);
+            db.files.deleteArtifactFile(art);
+            db.mongoDB.remove(art);
             return new JString(zz);
         }};
     public boolean exportToExcel(I_Excel ex){
