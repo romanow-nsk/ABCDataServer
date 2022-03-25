@@ -35,19 +35,21 @@ public class ServerFileAcceptor extends Thread{
                 System.out.println("ServerFileAcceptor: connect from "+sk.getLocalSocketAddress().toString());
                 new ServerFileWriter(fileDir, ss,this);
                 }
-            }catch (Exception ee){
-                db.sendBug("ServerFileAcceptor",ee);
-                }
+            }catch (Exception ee){}
         }
     public void shutdown(){
-        try {
-            ArrayList<ServerFileReader> tmp = new ArrayList<>();
-            for(ServerFileReader ss : readers)
-                tmp.add(ss);
-            for(ServerFileReader ss : tmp)
+        shutdown = true;
+        interrupt();
+        ArrayList<ServerFileReader> tmp = new ArrayList<>();
+        for(ServerFileReader ss : readers)
+            tmp.add(ss);
+        for(ServerFileReader ss : tmp)
+            try {
                 ss.close();
-                sk.close();
-            } catch (IOException e) {}
-    }
+                } catch (Exception ee){}
+        try {
+            sk.close();
+            } catch (Exception ee){}
+        }
 
-}
+    }

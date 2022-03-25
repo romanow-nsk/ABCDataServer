@@ -295,6 +295,7 @@ public class DataServer implements I_DataServer{
         System.out.println(list.o2);
         //----------------------------------------------------------------------------------------------
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Старт сервера","");
+        clock.start();
         onStart();
         return true;
         }
