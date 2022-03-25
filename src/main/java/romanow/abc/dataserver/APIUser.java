@@ -74,7 +74,7 @@ public class APIUser extends APIBase{
     }
 
     //-------------------------------------------------------------------------------------
-    RouteWrap apiServerEnvironment = new RouteWrap() {
+    RouteWrap apiServerEnvironment = new RouteWrap(false) {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
         ArrayList<String> out = new ArrayList<>();
