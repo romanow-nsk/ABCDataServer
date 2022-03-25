@@ -2,6 +2,7 @@ package romanow.abc.dataserver;
 
 import com.google.gson.Gson;
 import romanow.abc.core.API.RestAPIBase;
+import romanow.abc.core.API.RestAPIFirstClient;
 import romanow.abc.core.ServerState;
 import romanow.abc.core.UniException;
 import romanow.abc.core.Utils;
@@ -10,6 +11,7 @@ import romanow.abc.core.dll.DLLModule;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.base.BugMessage;
 import romanow.abc.core.entity.base.WorkSettingsBase;
+import romanow.abc.core.entity.baseentityes.JInner;
 import romanow.abc.core.entity.baseentityes.JString;
 import romanow.abc.core.entity.users.User;
 import romanow.abc.core.export.ExcelX;
@@ -57,7 +59,8 @@ public class DataServer implements I_DataServer{
     private OwnDateTime logFileWriteDate;           // Время последней записи в лог-файл
     private DLLModule rootModule=new DLLModule();
     protected ClockController clock=null;           // Поток периодических операицй
-    public ErrorCounter deviceErrors = new ErrorCounter();              // Счетчик повторных ошибок
+    public ErrorCounter deviceErrors = new ErrorCounter();  // Счетчик повторных ошибок
+    public RestAPIBase localService = null;
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
@@ -264,7 +267,6 @@ public class DataServer implements I_DataServer{
         //--------------------------------------------------------------------------------
          sessions = new SessionController(this);
          deployer = new ServerFileAcceptor(this,dataServerFileDir(),port);
-         clock = new ClockController(this);
         //---------------------------------------------------------------------------------
         users = new APIUser(this);
         files = new APIArtifact(this);
@@ -295,7 +297,12 @@ public class DataServer implements I_DataServer{
         System.out.println(list.o2);
         //----------------------------------------------------------------------------------------------
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Старт сервера","");
-        clock.start();
+         try {
+            localService = RestAPIFirstClient.startClient("localhost",""+port);
+            } catch (UniException e) {
+                System.out.println("Локальный клиент 1: "+e.toString());
+                }
+         clock = new ClockController(this);
         onStart();
         return true;
         }
@@ -308,7 +315,7 @@ public class DataServer implements I_DataServer{
     public void shutdown(){
         if (!isRun) return;
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Останов сервера сервера","");
-        clock.setShutdown();
+        clock.shutdown();
         shutDown=true;
         closeLogFile();
         spark.Spark.stop();
@@ -327,14 +334,16 @@ public class DataServer implements I_DataServer{
         }
     public String toJSON(Object ent, Request req, RequestStatistic statistic){
         String ss = req.queryString();
-        ss = "<-----"+req.ip()+req.pathInfo()+" "+req.requestMethod()+" "+(ss == null ? "" : ss);
-        if (statistic.startTime!=-1){
-            long dd = System.currentTimeMillis()-statistic.startTime;
-            ss += " time="+(dd)+" мс";
-            common.addTimeStamp(dd);
-        }
-        ss += " объектов "+statistic.entityCount+" ("+statistic.recurseCount+")";
-        System.out.println(ss);
+        if (!(ent instanceof JInner)){
+            ss = "<-----"+req.ip()+req.pathInfo()+" "+req.requestMethod()+" "+(ss == null ? "" : ss);
+            if (statistic.startTime!=-1){
+                long dd = System.currentTimeMillis()-statistic.startTime;
+                ss += " time="+(dd)+" мс";
+                common.addTimeStamp(dd);
+                }
+            ss += " объектов "+statistic.entityCount+" ("+statistic.recurseCount+")";
+            System.out.println(ss);
+            }
         try {
             String out = new Gson().toJson(ent);
             if (objectTrace)
