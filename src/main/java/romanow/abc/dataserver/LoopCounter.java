@@ -2,6 +2,9 @@ package romanow.abc.dataserver;
 
 public abstract class LoopCounter {
     public LoopCounter(){}
+    public LoopCounter(int count0){
+        count = count0;
+        }
     private int count=0;
     private int startCount;
     public abstract void exec();
