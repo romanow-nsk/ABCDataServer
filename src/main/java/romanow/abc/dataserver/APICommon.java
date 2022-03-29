@@ -494,25 +494,29 @@ public class APICommon extends APIBase {
             return new JLong(ent.getOid());
             }};
     public Object keepAlive(Request req, Response res,boolean timeStamp) throws Exception {
+        int count=0;
         String val = req.headers(ValuesBase.SessionHeaderName);
         if (val==null)
             return new JInt(0);       // Вернуть количество уведомлений, не прочитанных
+        db.serverLock.lock(5);
         UserContext ctx = db.sessions.getContext(val);
         if (ctx==null){
             System.out.println("KeepAlive: no user context");
-            return new JInt(0);
+            db.serverLock.unlock(5);
             }
-        User uu = ctx.getUser();
-        if (uu==null){
-            System.out.println("KeepAlive: no user");
-            return new JInt(0);
-        }
-        int count=0;
-        int type = uu.getTypeId();
-        count = db.notify.getNotificationCount(type,ValuesBase.NSSend,uu.getOid());
-        System.out.println("KeepAlive: user "+uu.getTitle()+" ["+count+"]");
-        if (timeStamp)
-            ctx.wasCalled();                // Отметка времени !!!!!!!!!!!!!!!!
+        else {
+            User uu = ctx.getUser();
+            if (uu == null) {
+                System.out.println("KeepAlive: no user");
+            } else {
+                int type = uu.getTypeId();
+                count = db.notify.getNotificationCount(type, ValuesBase.NSSend, uu.getOid());
+                System.out.println("KeepAlive: user " + uu.getTitle() + " [" + count + "]");
+                if (timeStamp)
+                    ctx.wasCalled();
+                }
+            }
+        db.serverLock.unlock(5);
         return new JInt(count);
         }
     RouteWrap apiKeepAlive = new RouteWrap(false) {

@@ -1,6 +1,7 @@
 package romanow.abc.dataserver;
 
 import com.google.gson.Gson;
+import lombok.Getter;
 import romanow.abc.core.API.RestAPIBase;
 import romanow.abc.core.API.RestAPIFirstClient;
 import romanow.abc.core.ServerState;
@@ -64,6 +65,7 @@ public class DataServer implements I_DataServer{
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
+    protected Lock serverLock = new Lock();
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {
         return consoleLog; }
