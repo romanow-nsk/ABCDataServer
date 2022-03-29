@@ -7,24 +7,28 @@ import romanow.abc.core.utils.OwnDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ClockController<T extends DataServer>{
+public class ClockController<T extends DataServer> extends Thread{
     protected T db;                     // Головной модуль сервера данных
     protected boolean shutdown=false;   // Признак завершения работы
+    private volatile boolean busy=false;
     private OwnDateTime lastDay = new OwnDateTime(false);        // Время для фиксации смены дня
-    Timer timer = new Timer();
     public ClockController(T db0){
         db = db0;
         lastDay.onlyDate();
-        timer.schedule(task,1000,1000);
+        start();
         }
-    TimerTask task = new TimerTask() {
-        @Override
-        public void run() {
-            clockCycle();
+    public void run() {
+        while (!shutdown){
+            try {
+                Thread.sleep(1000);
+                clockCycle();
+                } catch (InterruptedException e) {
+                }
             }
         };
     public void shutdown(){
-        timer.cancel();
+        shutdown = true;
+        interrupt();
         }
     public void clockCycle(){
         db.onClock();
