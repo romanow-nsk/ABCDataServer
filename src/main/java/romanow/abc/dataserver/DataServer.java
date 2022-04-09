@@ -35,6 +35,7 @@ import java.io.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 // AJAX посылает post, а браузер - get
 public class DataServer implements I_DataServer{
@@ -65,6 +66,7 @@ public class DataServer implements I_DataServer{
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
+    public boolean traceMode = false;
     protected Lock serverLock = new Lock(false);
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {

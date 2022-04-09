@@ -31,7 +31,11 @@ public class ClockController<T extends DataServer> extends Thread{
         interrupt();
         }
     public void clockCycle(){
+        if (busy)
+            return;
+        busy=true;
         db.onClock();
+        busy=false;
         }
     private final static int hourX=19;
     private final static int minuteX=45;
