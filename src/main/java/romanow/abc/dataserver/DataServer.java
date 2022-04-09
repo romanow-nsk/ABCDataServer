@@ -65,7 +65,7 @@ public class DataServer implements I_DataServer{
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
-    protected Lock serverLock = new Lock(true);
+    protected Lock serverLock = new Lock(false);
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {
         return consoleLog; }

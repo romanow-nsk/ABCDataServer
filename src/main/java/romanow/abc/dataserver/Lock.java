@@ -1,11 +1,14 @@
 package romanow.abc.dataserver;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Lock {
     public Lock(){}
     public Lock(boolean trace0){
         trace = trace0;
     }
-    private boolean trace=false;
+    @Getter @Setter private boolean trace=false;
     private volatile int synchCounter=0;
     public synchronized void lock(int idx){
         if (trace)
