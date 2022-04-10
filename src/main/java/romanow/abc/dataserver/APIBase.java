@@ -28,8 +28,9 @@ public class APIBase<T extends DataServer> {
         @Override
         public Object handle(Request req, Response res){
             if (db.traceMode)
-                System.out.println(req.pathInfo());
-            db.serverLock.lock(-1);
+                System.out.println("+++"+req.pathInfo());
+            synchronized (db.serverLock){
+            //db.serverLock.lock(-1);
             ServerState state = db.getServerState();
             try {
                 long tt = db.canDo(req,res,testToken);
@@ -39,18 +40,23 @@ public class APIBase<T extends DataServer> {
                 statistic.startTime = tt;
                 Object out = _handle(req,res, statistic);
                 state.decRequestNum();
-                db.serverLock.unlock(-1);
+                //db.serverLock.unlock(-1);
+                if (db.traceMode)
+                    System.out.println("---"+req.pathInfo());
                 return out==null ? res.body() : db.toJSON(out, req, statistic);
-            } catch (Exception ee){
-                state.decRequestNum();
-                String mes = Utils.createFatalMessage(ee)+"\n"+db.traceRequest(req);
-                System.out.println(mes);
-                db.sendBug("Сервер",mes);
-                try {
-                    db.mongoDB.add(new BugMessage(mes));
+                } catch (Exception ee) {
+                    state.decRequestNum();
+                    String mes = Utils.createFatalMessage(ee) + "\n" + db.traceRequest(req);
+                    System.out.println(mes);
+                    db.sendBug("Сервер", mes);
+                    try {
+                        db.mongoDB.add(new BugMessage(mes));
                     } catch (UniException e) {}
-                db.createHTTPError(res, ValuesBase.HTTPException, mes);
-                db.serverLock.unlock(-1);
+                    db.createHTTPError(res, ValuesBase.HTTPException, mes);
+                    //db.serverLock.unlock(-1);
+                    if (db.traceMode)
+                        System.out.println("---"+req.pathInfo());
+                    }
                 return res.body();
             }
         }
