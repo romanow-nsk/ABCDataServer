@@ -67,7 +67,7 @@ public class DataServer implements I_DataServer{
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
     public boolean traceMode = false;
-    protected Lock serverLock = new Lock(false);
+    protected volatile Lock serverLock = new Lock(false);
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {
         return consoleLog; }
@@ -146,6 +146,7 @@ public class DataServer implements I_DataServer{
                 }
         setMIMETypes();
         spark.Spark.port(port);
+        spark.Spark.threadPool(ValuesBase.SparkThreadPoolSize);
         spark.Spark.staticFiles.location("/public");                            // Обязательно
         spark.Spark.notFound((req,res)->{
             StringBuffer ff = new StringBuffer();
