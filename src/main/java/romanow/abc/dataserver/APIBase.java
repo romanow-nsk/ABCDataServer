@@ -27,6 +27,9 @@ public class APIBase<T extends DataServer> {
         public abstract Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception;
         @Override
         public Object handle(Request req, Response res){
+            if (db.traceMode)
+                System.out.println(req.pathInfo());
+            db.serverLock.lock(-1);
             ServerState state = db.getServerState();
             try {
                 long tt = db.canDo(req,res,testToken);
@@ -36,6 +39,7 @@ public class APIBase<T extends DataServer> {
                 statistic.startTime = tt;
                 Object out = _handle(req,res, statistic);
                 state.decRequestNum();
+                db.serverLock.unlock(-1);
                 return out==null ? res.body() : db.toJSON(out, req, statistic);
             } catch (Exception ee){
                 state.decRequestNum();
@@ -46,6 +50,7 @@ public class APIBase<T extends DataServer> {
                     db.mongoDB.add(new BugMessage(mes));
                     } catch (UniException e) {}
                 db.createHTTPError(res, ValuesBase.HTTPException, mes);
+                db.serverLock.unlock(-1);
                 return res.body();
             }
         }

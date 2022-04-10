@@ -498,11 +498,11 @@ public class APICommon extends APIBase {
         String val = req.headers(ValuesBase.SessionHeaderName);
         if (val==null)
             return new JInt(0);       // Вернуть количество уведомлений, не прочитанных
-        db.serverLock.lock(5);
+        //db.serverLock.lock(5);
         UserContext ctx = db.sessions.getContext(val);
         if (ctx==null){
             System.out.println("KeepAlive: no user context");
-            db.serverLock.unlock(5);
+        //    db.serverLock.unlock(5);
             }
         else {
             User uu = ctx.getUser();
