@@ -67,7 +67,7 @@ public class DataServer implements I_DataServer{
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
     public boolean traceMode = false;
-    protected volatile Lock serverLock = new Lock(false);
+    protected LockSleep serverLock = new LockSleep(false);
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {
         return consoleLog; }
