@@ -130,6 +130,36 @@ public class APIAdmin extends APIBase{
             return new JEmpty();
            }
         };
+
+    public String printConsoleOutput(Process p,boolean isWin) throws Exception{
+        String out="";
+        Locale current = Locale.getDefault();
+        InputStream is = p.getInputStream();
+        InputStream ers = p.getErrorStream();
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(is, (isWin ? "Cp866" : "UTF8")));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(ers, (isWin ? "Cp866" : "UTF8")));
+        String temp=null;
+        long clock = System.currentTimeMillis();
+        while (p.isAlive() && System.currentTimeMillis()-clock < ValuesBase.ConsolePrintPause*1000){
+            while (is.available()!=0){
+                temp = stdInput.readLine();
+                if (temp!=null){
+                    System.out.println(temp);
+                    out += temp+"\n";
+                    clock = System.currentTimeMillis();
+                    }
+                }
+             while (ers.available()!=0){
+                temp = stdError.readLine();
+                if (temp!=null){
+                    System.out.println(temp);
+                    out += temp+"\n";
+                    clock = System.currentTimeMillis();
+                    }
+                }
+            }
+        return out;
+        }
     RouteWrap apiExecute = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
@@ -149,23 +179,16 @@ public class APIAdmin extends APIBase{
             Process p =null;
             try {
                 p=r.exec(vv);
-                p.waitFor();
-                Locale current = Locale.getDefault();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(),
-                        (isWin ? "Cp866" : "UTF8")));
-                String line;
-                while ((line=reader.readLine())!=null) {
-                    System.out.println(line);
-                    out+=line+"\n";
-                }
+                String ss=  printConsoleOutput(p,isWin);
+                out+=ss;
                 p.destroy();
-            } catch (Exception e) {
-                String zz = "Ошибка выполнения скрипта "+e.toString();
-                System.out.println(zz);
-                out+=zz+"\n";
-                if (p!=null)
-                    p.destroy();
-            }
+                } catch (Exception e) {
+                    String zz = "Ошибка выполнения скрипта "+e.toString();
+                    System.out.println(zz);
+                    out+=zz+"\n";
+                    if (p!=null)
+                        p.destroy();
+                        }
             return new JString(out);
         }
     };
@@ -229,7 +252,7 @@ public class APIAdmin extends APIBase{
                             zz[1]=batName;
                             System.out.println(zz[0]+" "+zz[1]);
                             p=r.exec(zz);
-                        }
+                            }
                         db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
                             @Override
                             public void run() {
@@ -424,6 +447,7 @@ public class APIAdmin extends APIBase{
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             if (!db.users.isOnlyForSuperAdmin(req,res))
                 return null;
+            final boolean isWin = System.getProperty("os.name").startsWith("Windows");
             final Artifact art = (Artifact)db.common.getEntityByIdHTTP(req,res,Artifact.class);
             if (art==null)
                 return null;
@@ -431,25 +455,22 @@ public class APIAdmin extends APIBase{
             Runtime r =Runtime.getRuntime();
             Process p =null;
             try {
-                String cmd = "mongorestore /host:\"localhost\" /port:27017 /gzip /archive:"+
-                        db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                String cmd = isWin ?
+                        "mongorestore  /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
+                        "mongorestore  --gzip --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() ;
                 p=r.exec(cmd);
-                db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
-                    @Override
-                    public void run() {
-                        System.exit(0);
-                    }
-                    });
+                printConsoleOutput(p,isWin);
+                p.destroy();
                 } catch (IOException e) {
                     System.out.println("Ошибка выполнения скрипта "+e.toString());
                     }
-            db.delayInGUI(ValuesBase.ServerRestoreDelay+ValuesBase.ServerRebootDelay,new Runnable() {
+            db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
                 @Override
                 public void run() {
                     db.restartServer(false);
                 }
                 });
-            db.delayInGUI(ValuesBase.ServerRestoreDelay,new Runnable() {
+            db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
                 @Override
                 public void run() {
                     db.files.deleteArtifactFile(art);
@@ -464,6 +485,7 @@ public class APIAdmin extends APIBase{
     RouteWrap routeDump = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            final boolean isWin = System.getProperty("os.name").startsWith("Windows");
             OwnDateTime cc = new OwnDateTime();
             String dbName= ValuesBase.env().applicationName(ValuesBase.AppNameDBName)+db.port;
             Artifact art = new Artifact("mongo-"+dbName+"-"+ Utils.nDigits(cc.month(),2)+Utils.nDigits(cc.day(),2)+"-"+db.common.getServerState().getReleaseNumber()+".gz",0);
@@ -479,9 +501,11 @@ public class APIAdmin extends APIBase{
             Runtime r =Runtime.getRuntime();
             Process p =null;
             try {
-                String cmd = "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                String cmd = isWin ? "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
+                        "mongodump --db:"+dbName+" --gzip --archive > "+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
                 p=r.exec(cmd);
-                p.waitFor();
+                printConsoleOutput(p,isWin);
+                p.destroy();
                 db.mongoDB.update(art);
                 ServerEvent event = new ServerEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Скачан архив БД",art.getOriginalName())
                         .setAtrifact(art.getOid());
