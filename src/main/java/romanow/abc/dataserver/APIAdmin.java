@@ -502,7 +502,7 @@ public class APIAdmin extends APIBase{
             Process p =null;
             try {
                 String cmd = isWin ? "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
-                        "mongodump --db:"+dbName+" --gzip --archive > "+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                        "mongodump --db="+dbName+" --gzip --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
                 p=r.exec(cmd);
                 printConsoleOutput(p,isWin);
                 p.destroy();
@@ -969,5 +969,4 @@ public class APIAdmin extends APIBase{
                 out.add(ss);
             return out;
         }};
-
     }
