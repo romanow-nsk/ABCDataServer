@@ -33,8 +33,10 @@ public class APIAdmin extends APIBase{
     public APIAdmin(DataServer db0) {
         super(db0);
         spark.Spark.get("/api/admin/exportdb", routeExportXLS);
+        spark.Spark.get("/api/admin/dump", routeDump);
         spark.Spark.post("/api/admin/reboot", apiReboot);
         spark.Spark.post("/api/admin/importdb", routeImportXLS);
+        spark.Spark.post("/api/admin/restore", routeRestore);
         spark.Spark.post("/api/admin/deploy", apiDeploy);
         spark.Spark.post("/api/admin/execute", apiExecute);
         spark.Spark.post("/api/admin/shutdown", apiShutdown);
@@ -289,10 +291,8 @@ public class APIAdmin extends APIBase{
                 }
             });
             return new JEmpty();
-        }
-    };
-
-
+            }
+        };
 
     RouteWrap routeImportXLS = new RouteWrap() {
         @Override
@@ -307,6 +307,18 @@ public class APIAdmin extends APIBase{
             String zz = xls.load(db.dataServerFileDir()+"/"+art.createArtifactServerPath(),db.mongoDB);
             db.files.deleteArtifactFile(art);
             db.mongoDB.remove(art);
+            db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
+                @Override
+                public void run() {
+                    db.restartServer(false);
+                }
+                });
+            db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
+                @Override
+                public void run() {
+                    db.shutdown();
+                }
+                });
             return new JString(zz);
         }};
     public boolean exportToExcel(I_Excel ex){
@@ -326,6 +338,7 @@ public class APIAdmin extends APIBase{
             }
         return true;
         }
+
     public boolean exportToExcelBlocked(I_Excel ex, int blockSize){
         int i=0;
         ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
@@ -405,6 +418,83 @@ public class APIAdmin extends APIBase{
             db.notify.sendMailNotifycation(event);
             return art;
         }};
+    //--------------------------------------------------------------------------------------------------------------------
+    RouteWrap routeRestore = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            if (!db.users.isOnlyForSuperAdmin(req,res))
+                return null;
+            final Artifact art = (Artifact)db.common.getEntityByIdHTTP(req,res,Artifact.class);
+            if (art==null)
+                return null;
+            db.clearDB();
+            Runtime r =Runtime.getRuntime();
+            Process p =null;
+            try {
+                String cmd = "mongorestore /host:\"localhost\" /port:27017 /gzip /archive:"+
+                        db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                p=r.exec(cmd);
+                db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
+                    @Override
+                    public void run() {
+                        System.exit(0);
+                    }
+                    });
+                } catch (IOException e) {
+                    System.out.println("Ошибка выполнения скрипта "+e.toString());
+                    }
+            db.delayInGUI(ValuesBase.ServerRestoreDelay+ValuesBase.ServerRebootDelay,new Runnable() {
+                @Override
+                public void run() {
+                    db.restartServer(false);
+                }
+                });
+            db.delayInGUI(ValuesBase.ServerRestoreDelay,new Runnable() {
+                @Override
+                public void run() {
+                    db.files.deleteArtifactFile(art);
+                    try {
+                        db.mongoDB.remove(art);
+                    } catch (UniException e) {}
+                    db.shutdown();
+                    }
+                });
+            return new JString("Обновление");
+        }};
+    RouteWrap routeDump = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            OwnDateTime cc = new OwnDateTime();
+            String dbName= ValuesBase.env().applicationName(ValuesBase.AppNameDBName)+db.port;
+            Artifact art = new Artifact("mongo-"+dbName+"-"+ Utils.nDigits(cc.month(),2)+Utils.nDigits(cc.day(),2)+"-"+db.common.getServerState().getReleaseNumber()+".gz",0);
+            art.setName("mongo:"+db.port);
+            int artType = ArtifactTypes.getArtifactType(art.getOriginalExt());
+            art.setType(artType);
+            String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
+            File path = new File(dir);
+            if (!path.exists())
+                path.mkdir();
+            db.mongoDB.add(art);
+            String zz = dir +"/"+art.createArtifactFileName();
+            Runtime r =Runtime.getRuntime();
+            Process p =null;
+            try {
+                String cmd = "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                p=r.exec(cmd);
+                p.waitFor();
+                db.mongoDB.update(art);
+                ServerEvent event = new ServerEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Скачан архив БД",art.getOriginalName())
+                        .setAtrifact(art.getOid());
+                db.notify.sendMailNotifycation(event);
+                return art;
+                } catch (IOException e) {
+                    String ss = "Ошибка выполнения скрипта "+e.toString();
+                    System.out.println(ss);
+                    db.createHTTPError(res, ValuesBase.HTTPRequestError,ss);
+                    return null;
+                    }
+            }};
+    //-------------------------------------------------------------------------------------------------------------------
     RouteWrap apiClearDB = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
