@@ -451,7 +451,10 @@ public class APIAdmin extends APIBase{
             final Artifact art = (Artifact)db.common.getEntityByIdHTTP(req,res,Artifact.class);
             if (art==null)
                 return null;
-            db.clearDB();
+            for(TableItem item : ValuesBase.EntityFactory().classList()){
+                Entity proto = (Entity)item.clazz.newInstance();
+                db.mongoDB.dropTable(proto);
+                }
             Runtime r =Runtime.getRuntime();
             Process p =null;
             try {
@@ -464,24 +467,27 @@ public class APIAdmin extends APIBase{
                 } catch (IOException e) {
                     System.out.println("Ошибка выполнения скрипта "+e.toString());
                     }
-            db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
-                @Override
-                public void run() {
-                    db.restartServer(false);
-                }
-                });
             db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
                 @Override
                 public void run() {
                     db.files.deleteArtifactFile(art);
                     try {
                         db.mongoDB.remove(art);
-                    } catch (UniException e) {}
-                    db.shutdown();
+                        } catch (UniException e) {
+                            System.out.println();
+                            }
+                        db.shutdown();
+                        }
+                    });
+            db.delayInGUI(ValuesBase.ServerRebootDelay*2,new Runnable() {
+                @Override
+                public void run() {
+                    db.restartServer(false);
                     }
                 });
             return new JString("Обновление");
         }};
+    //------------------------------------------------------------------------------------------------------------------
     RouteWrap routeDump = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
@@ -731,7 +737,7 @@ public class APIAdmin extends APIBase{
                 for(int j=1; j<xx.size();j++){              // ПЕРВУЮ ПРОПУСТИТЬ
                     oid = xx.get(j).getOid();
                     db.mongoDB.remove(ent,oid);
-                }
+                    }
                 out+=eName+" удалено "+(xx.size()-1)+"\n";
             } catch (Exception ee){
                 String ss = "Ошибка удаления "+eName+" oid = "+oid+"\n"+ee.toString()+"\n";
