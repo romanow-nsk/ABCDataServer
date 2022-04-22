@@ -94,7 +94,7 @@ public class ConsoleServer {
 
     public static void main(String args[]) {
          //----------------------------------------------------------------------------------
-        if (args.length>2){
+        if (args.length>4){
             System.out.println("Слишком много параметров -"+args.length);
             return;
             }
