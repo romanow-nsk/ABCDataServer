@@ -102,7 +102,7 @@ public class ConsoleServer {
          String init = "none";
          if (args.length>0)
             port = args[0];
-         if (args.length==2)
+         if (args.length>=2)
             init = args[1];
          System.out.println("Порт="+port);
          ConsoleServer server = new ConsoleServer();
