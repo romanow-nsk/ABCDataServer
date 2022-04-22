@@ -108,8 +108,8 @@ public class ConsoleServer {
          ConsoleServer server = new ConsoleServer();
          server.startServer(Integer.parseInt(port),init);
         if(args.length==4){
-            ValuesBase.superUser.setLoginPhone(args[2]);
-            ValuesBase.superUser.setPassword(args[3]);
+            ValuesBase.env().superUser().setLoginPhone(args[2]);
+            ValuesBase.env().superUser().setPassword(args[3]);
             }
         }
     }
