@@ -107,5 +107,9 @@ public class ConsoleServer {
          System.out.println("Порт="+port);
          ConsoleServer server = new ConsoleServer();
          server.startServer(Integer.parseInt(port),init);
-         }
+        if(args.length==4){
+            ValuesBase.superUser.setLoginPhone(args[2]);
+            ValuesBase.superUser.setPassword(args[3]);
+            }
+        }
     }
