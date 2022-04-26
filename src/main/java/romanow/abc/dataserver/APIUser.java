@@ -59,7 +59,7 @@ public class APIUser extends APIBase{
     public boolean isOnlyForSuperAdmin(Request req, Response res) throws Exception{
         ParamString pass = new ParamString(req, res, "pass");
         if (!pass.isValid()) return false;
-        if (!pass.getValue().equals(ValuesBase.DebugTokenPass)) {
+        if (!pass.getValue().equals(ValuesBase.env().superUser().getPassword())) {
             sendSecurityMessage("Illegal debug pass", req);
             db.createHTTPError(res,ValuesBase.HTTPAuthorization, "Недопустимый пароль операции");
             return false;
