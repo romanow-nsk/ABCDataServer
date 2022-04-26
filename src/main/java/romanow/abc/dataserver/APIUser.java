@@ -51,7 +51,7 @@ public class APIUser extends APIBase{
         UserContext ctx = db.getSession(req,res);
         User user = ctx.getUser();
         if (user.getTypeId()== ValuesBase.UserGuestType){
-            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Отсутсвуют права на выполнение операций");
+            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Отсутствуют права на выполнение операций");
             return true;
         }
         return false;
@@ -61,7 +61,7 @@ public class APIUser extends APIBase{
         if (!pass.isValid()) return false;
         if (!pass.getValue().equals(ValuesBase.env().superUser().getPassword())) {
             sendSecurityMessage("Illegal debug pass", req);
-            db.createHTTPError(res,ValuesBase.HTTPAuthorization, "Недопустимый пароль операции");
+            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
             return false;
         }
         UserContext ctx = db.getSession(req,res);
