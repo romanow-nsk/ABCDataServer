@@ -60,7 +60,8 @@ public class APIUser extends APIBase{
         ParamString pass = new ParamString(req, res, "pass");
         if (!pass.isValid()) return false;
         if (!pass.getValue().equals(ValuesBase.env().superUser().getPassword())) {
-            sendSecurityMessage("Illegal debug pass", req);
+            //------------------------- ЗАЧЕМ -----------------------------------------
+            //sendSecurityMessage("Illegal debug pass", req);
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
             return false;
         }
