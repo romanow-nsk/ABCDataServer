@@ -565,17 +565,19 @@ public class APICommon extends APIBase {
         Entity cc=null;
         try {
             //-------------- По имени сущности ---------------------------------------------------------------------
-            //cc = (Entity) Class.forName(entity.getValue()).newInstance();
             Class zz = ValuesBase.EntityFactory().get(entity.getValue());
+            if (zz==null)
+                zz = ValuesBase.EntityFactory().getClassForSimpleName(entity.getValue());
             if (zz==null){
                 db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+entity.getValue());
+                return null;
                 }
             cc = (Entity) zz.newInstance();
             boolean bb = db.mongoDB.delete(cc,id.getValue(),mode);
             System.out.println((mode ? "Восстановлен" : "Удален")+" id="+id.getValue()+" "+bb);
             return new JBoolean(bb);
             } catch(Exception ee){
-                db.createHTTPError(res,ValuesBase.HTTPRequestError, "Не могу создать объект "+entity+" "+ee.toString());
+                db.createHTTPError(res,ValuesBase.HTTPRequestError, "Не могу создать объект "+entity.getValue()+": "+ee.toString());
                 return null;
                 }
         }
