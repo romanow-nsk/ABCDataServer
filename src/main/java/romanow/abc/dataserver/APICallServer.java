@@ -1,6 +1,5 @@
 package romanow.abc.dataserver;
 
-import org.jfree.data.Values;
 import retrofit2.Call;
 import retrofit2.Response;
 import romanow.abc.core.API.RestAPIBase;
