@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d28f7188-1e08-4913-9986-3e0708c11729" name="Default Changelist" comment="Таблицы имен">
-      <change afterPath="$PROJECT_DIR$/../ABCCore/src/main/java/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ABCCore/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ABCCore/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/ClockController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/ClockController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/RestAPIClientExample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/RestAPIClientExample.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ABCCore/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ABCCore/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
