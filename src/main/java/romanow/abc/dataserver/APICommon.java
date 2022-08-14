@@ -89,7 +89,8 @@ public class APICommon extends APIBase {
             ParamBody qq = new ParamBody(req, res, DBRequest.class);
             if (!qq.isValid()) return null;
             DBRequest dbReq = (DBRequest)qq.getValue();
-            long oid = db.mongoDB.add(dbReq.get(new Gson()),level);
+            Entity entity = dbReq.get(new Gson());
+            long oid = db.mongoDB.add(entity,level);
             return new JLong(oid);
         }};
     RouteWrap routeEntityList = new RouteWrap() {
