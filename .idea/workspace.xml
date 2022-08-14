@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d28f7188-1e08-4913-9986-3e0708c11729" name="Default Changelist" comment="Таблицы имен" />
+    <list default="true" id="d28f7188-1e08-4913-9986-3e0708c11729" name="Default Changelist" comment="PRS">
+      <change beforePath="$PROJECT_DIR$/../ABCCore/src/main/java/romanow/abc/core/API/RestAPIBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ABCCore/src/main/java/romanow/abc/core/API/RestAPIBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/DataServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/romanow/abc/dataserver/DataServer.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -147,6 +151,7 @@
     <MESSAGE value="Fix0 без ошибок" />
     <MESSAGE value="Фабрика классов приложения" />
     <MESSAGE value="Таблицы имен" />
-    <option name="LAST_COMMIT_MESSAGE" value="Таблицы имен" />
+    <MESSAGE value="PRS" />
+    <option name="LAST_COMMIT_MESSAGE" value="PRS" />
   </component>
 </project>

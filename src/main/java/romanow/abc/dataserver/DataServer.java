@@ -1,7 +1,10 @@
 package romanow.abc.dataserver;
 
 import com.google.gson.Gson;
-import lombok.Getter;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import romanow.abc.core.API.RestAPIBase;
 import romanow.abc.core.API.RestAPIFirstClient;
 import romanow.abc.core.ServerState;
@@ -21,10 +24,6 @@ import romanow.abc.core.mongo.*;
 import romanow.abc.core.utils.OwnDateTime;
 import romanow.abc.core.utils.Pair;
 import romanow.abc.core.utils.StringFIFO;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import romanow.abc.dataserver.ftp.ServerFileAcceptor;
 import spark.Request;
 import spark.Response;
