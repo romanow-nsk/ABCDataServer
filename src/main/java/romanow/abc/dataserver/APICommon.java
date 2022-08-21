@@ -3,6 +3,7 @@ package romanow.abc.dataserver;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 
+import org.jfree.data.Values;
 import romanow.abc.core.DBRequest;
 import romanow.abc.core.ServerState;
 import romanow.abc.core.UniException;
@@ -10,6 +11,7 @@ import romanow.abc.core.constants.ConstList;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.*;
 import romanow.abc.core.entity.artifacts.Artifact;
+import romanow.abc.core.entity.artifacts.ReportFile;
 import romanow.abc.core.entity.base.BugMessage;
 import romanow.abc.core.entity.base.HelpFile;
 import romanow.abc.core.entity.base.StringList;
@@ -17,10 +19,12 @@ import romanow.abc.core.entity.base.WorkSettingsBase;
 import romanow.abc.core.entity.baseentityes.*;
 import romanow.abc.core.entity.users.User;
 import romanow.abc.core.mongo.*;
+import romanow.abc.core.reports.*;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -827,5 +831,58 @@ public class APICommon extends APIBase {
             db.mongoDB.update(ent);
             return new JEmpty();
         }};
+    //---------------------------------- Отчеты ------------------------------------------------------------------------
+    public ReportFile createReportFile(Response res, ReportBase report, int fileType) throws Exception {
+        return createReportFile(res,report,null);
+    }
+    public ReportFile createReportFile(Response res, ReportBase report, TableData table) throws Exception {
+        Artifact art = new Artifact();
+        art.setType(ValuesBase.ArtifactDocType);
+        art.setName(report.getTitle());
+        String cc = report.getTitle();
+        cc = cc.replace(":","-");
+        art.setOriginalName(cc);
+        String ext = report.getFileExt();
+        art.setOriginalExt(ext!=null ? ext : table.getFileExt());
+        long id = db.mongoDB.add(art);
+        if (id==0){
+            db.createHTTPError(res,ValuesBase.HTTPNotFound,"Артефакт не создан");
+            return null;
+        }
+        art.setOid(id);
+        report.reportFile = art;
+        String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
+        File path = new File(dir);
+        if (!path.exists())
+            path.mkdir();
+        String ss = dir +"/"+art.createArtifactFileName();
+        String zz = report.testReportContent();
+        if (zz!=null){
+            db.createHTTPError(res,ValuesBase.HTTPRequestError,zz);
+            return null;
+        }
+        report.createReportFile(table,ss);
+        ReportFile reportFile = new ReportFile(report.getTitle(),art);
+        reportFile.setReportType(report.reportType);
+        reportFile.setArchive(true);
+        db.mongoDB.add(reportFile);
+        return reportFile;
+        }
+    public boolean createReportArtifact(Response res, ReportBase report, int fileType) throws Exception {
+        return createReportArtifact(res,report,fileType,new DocumentParamList());
+        }
+    public boolean createReportArtifact(Response res, ReportBase report, int fileType,DocumentParamList list) throws Exception {
+        if (fileType==ValuesBase.ReportNO)
+            return true;
+        TableData table = null;
+        if (fileType==ValuesBase.ReportHTML) table = new TableHTML();
+        if (fileType==ValuesBase.ReportPDF) table = new TablePDF(list);
+        if (fileType==ValuesBase.ReportXML) table = new TableExcel();
+        if (table==null) {
+            db.createHTTPError(res,ValuesBase.HTTPRequestError,"Не найден тип файла-отчета");
+            return false;
+            }
+        return createReportFile(res,report,table) !=null;
+    }
 
 }
