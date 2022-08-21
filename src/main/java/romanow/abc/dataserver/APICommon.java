@@ -859,7 +859,7 @@ public class APICommon extends APIBase {
         if (zz!=null){
             db.createHTTPError(res,ValuesBase.HTTPRequestError,zz);
             return null;
-        }
+            }
         report.createReportFile(table,ss);
         ReportFile reportFile = new ReportFile(report.getTitle(),art);
         reportFile.setReportType(report.reportType);
