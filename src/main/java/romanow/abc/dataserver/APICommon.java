@@ -759,7 +759,7 @@ public class APICommon extends APIBase {
             db.createHTTPError(res,ValuesBase.HTTPNotFound, className+" не найден id="+id);
             return null;
         }
-        Field field = uu.getField(fieldName.getValue(), linkList ? DAO.dbLinkList : DAO.dbLink);
+        Field field = uu.getField(fieldName.getValue(), linkList ? ValuesBase.DAOEntityLinkList : ValuesBase.DAOEntityLink);
         if (field==null){
             db.createHTTPError(res,ValuesBase.HTTPNotFound, fieldName+" не найдено");
             return null;
