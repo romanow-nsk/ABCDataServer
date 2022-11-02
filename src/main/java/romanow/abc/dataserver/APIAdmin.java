@@ -459,8 +459,8 @@ public class APIAdmin extends APIBase{
             Process p =null;
             try {
                 String cmd = isWin ?
-                        "mongorestore  /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
-                        "mongorestore  --gzip --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() ;
+                        "mongorestore  /gzip /drop /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
+                        "mongorestore  --gzip --drop --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() ;
                 p=r.exec(cmd);
                 printConsoleOutput(p,isWin);
                 p.destroy();
