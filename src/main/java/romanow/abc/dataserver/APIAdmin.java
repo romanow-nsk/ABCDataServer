@@ -1,5 +1,6 @@
 package romanow.abc.dataserver;
 
+import org.apache.poi.ss.usermodel.Row;
 import romanow.abc.core.*;
 
 import romanow.abc.core.constants.TableItem;
@@ -16,8 +17,10 @@ import romanow.abc.core.entity.users.User;
 import romanow.abc.core.export.Excel;
 import romanow.abc.core.export.ExcelX;
 import romanow.abc.core.export.I_Excel;
+import romanow.abc.core.jdbc.JDBCFactory;
 import romanow.abc.core.mongo.DBQueryList;
 import romanow.abc.core.mongo.I_ChangeRecord;
+import romanow.abc.core.mongo.I_MongoDB;
 import romanow.abc.core.mongo.RequestStatistic;
 import romanow.abc.core.utils.Address;
 import romanow.abc.core.utils.GPSPoint;
@@ -50,6 +53,7 @@ public class APIAdmin extends APIBase{
         spark.Spark.post("/api/admin/cashmode", apiSetCashMode);
         spark.Spark.post("/api/admin/logfile/reopen", apiReopenLogFile);
         spark.Spark.get("/api/admin/files/list", apiGetFileList);
+        spark.Spark.post("/api/admin/clonedb", apiCloneDB);
         }
         //--------------------------------------------------------------------------------------
     RouteWrap apiLock = new RouteWrap() {
@@ -975,4 +979,59 @@ public class APIAdmin extends APIBase{
                 out.add(ss);
             return out;
         }};
+    //-------------------------------------------------------------------------------------------------------------------
+    public ErrorList copyDB(int port){
+        ErrorList errorList = new ErrorList();
+        if (port== db.port){
+            errorList.addError("Недопустимое копирование "+port+" -> "+port);
+            return errorList;
+            }
+        I_MongoDB outDB = new JDBCFactory().getDriverByIndex(ValuesBase.MongoDBType36);
+        try {
+            if (!outDB.openDB(port)){
+                errorList.addError("Ошибка открытия выходной БД");
+                return errorList;
+                }
+            } catch (UniException e) {
+                errorList.addError("Ошибка открытия выходной БД: "+e.toString());
+                return errorList;
+                }
+        try {
+            outDB.clearDB();
+            ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
+            for(TableItem item : olist){
+                if (!item.isTable)
+                    continue;
+                try {
+                    Entity ent = (Entity) item.clazz.newInstance();
+                    outDB.dropTable(ent);
+                    ArrayList<Entity> list = db.mongoDB.getAll(ent,ValuesBase.GetAllModeTotal,0);
+                    for(Entity entity : list)
+                        outDB.add(entity,0,true);
+                    } catch (Exception ee){
+                        errorList.addError("Не могу экспортировать "+item.name+"\n"+ee.toString());
+                        }
+                    }
+            } catch (UniException e) {
+                String ss = "Ошибка копирования: "+e.toString();
+                System.out.println(ss);
+                return errorList;
+                }
+        errorList.addInfo("БД скопирована " +db.port+" -> " +port);
+        return errorList;
+        }
+    //------------------------------------------------------------------------------------------------------------------
+    RouteWrap apiCloneDB = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            String out = "";
+            if (!db.users.isOnlyForSuperAdmin(req, res))
+                return null;
+            ParamInt port = new ParamInt(req,res,"port");
+            if (!port.isValid())
+                return null;
+            ErrorList errorList = copyDB(port.getValue());
+            return errorList;
+            }
+        };
     }
