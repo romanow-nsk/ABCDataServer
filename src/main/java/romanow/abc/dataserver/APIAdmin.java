@@ -53,7 +53,8 @@ public class APIAdmin extends APIBase{
         spark.Spark.post("/api/admin/cashmode", apiSetCashMode);
         spark.Spark.post("/api/admin/logfile/reopen", apiReopenLogFile);
         spark.Spark.get("/api/admin/files/list", apiGetFileList);
-        spark.Spark.post("/api/admin/clonedb", apiCloneDB);
+        spark.Spark.post("/api/admin/copydbto", apiExportDB);
+        spark.Spark.post("/api/admin/copydbfrom", apiImportDB);
         }
         //--------------------------------------------------------------------------------------
     RouteWrap apiLock = new RouteWrap() {
@@ -980,7 +981,7 @@ public class APIAdmin extends APIBase{
             return out;
         }};
     //-------------------------------------------------------------------------------------------------------------------
-    public ErrorList copyDB(int port){
+    public ErrorList exportDB(int port){
         ErrorList errorList = new ErrorList();
         if (port== db.port){
             errorList.addError("Недопустимое копирование "+port+" -> "+port);
@@ -1012,6 +1013,7 @@ public class APIAdmin extends APIBase{
                         errorList.addError("Не могу экспортировать "+item.name+"\n"+ee.toString());
                         }
                     }
+            outDB.closeDB();
             } catch (UniException e) {
                 String ss = "Ошибка копирования: "+e.toString();
                 System.out.println(ss);
@@ -1020,8 +1022,50 @@ public class APIAdmin extends APIBase{
         errorList.addInfo("БД скопирована " +db.port+" -> " +port);
         return errorList;
         }
+    //-------------------------------------------------------------------------------------------------------------------
+    public ErrorList importDB(int port){
+        ErrorList errorList = new ErrorList();
+        if (port== db.port){
+            errorList.addError("Недопустимое копирование "+port+" -> "+port);
+            return errorList;
+            }
+        I_MongoDB outDB = new JDBCFactory().getDriverByIndex(ValuesBase.MongoDBType36);
+        try {
+            if (!outDB.openDB(port)){
+                errorList.addError("Ошибка открытия входной БД");
+                return errorList;
+            }
+        } catch (UniException e) {
+            errorList.addError("Ошибка открытия входной БД: "+e.toString());
+            return errorList;
+        }
+        try {
+            db.mongoDB.clearDB();
+            ArrayList<TableItem> olist = ValuesBase.EntityFactory().classList(true);
+            for(TableItem item : olist){
+                if (!item.isTable)
+                    continue;
+                try {
+                    Entity ent = (Entity) item.clazz.newInstance();
+                    db.mongoDB.dropTable(ent);
+                    ArrayList<Entity> list = outDB.getAll(ent,ValuesBase.GetAllModeTotal,0);
+                    for(Entity entity : list)
+                        db.mongoDB.add(entity,0,true);
+                } catch (Exception ee){
+                    errorList.addError("Не могу импортировать "+item.name+"\n"+ee.toString());
+                    }
+                }
+            outDB.closeDB();
+        } catch (UniException e) {
+            String ss = "Ошибка копирования: "+e.toString();
+            System.out.println(ss);
+            return errorList;
+            }
+        errorList.addInfo("БД скопирована " +db.port+" -> " +port);
+        return errorList;
+        }
     //------------------------------------------------------------------------------------------------------------------
-    RouteWrap apiCloneDB = new RouteWrap() {
+    RouteWrap apiExportDB = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             String out = "";
@@ -1030,7 +1074,34 @@ public class APIAdmin extends APIBase{
             ParamInt port = new ParamInt(req,res,"port");
             if (!port.isValid())
                 return null;
-            ErrorList errorList = copyDB(port.getValue());
+            ErrorList errorList = exportDB(port.getValue());
+            return errorList;
+            }
+        };
+    RouteWrap apiImportDB = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            String out = "";
+            if (!db.users.isOnlyForSuperAdmin(req, res))
+                return null;
+            ParamInt port = new ParamInt(req,res,"port");
+            if (!port.isValid())
+                return null;
+            ErrorList errorList = importDB(port.getValue());
+            if (errorList.valid())
+                return errorList;
+            db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
+                @Override
+                public void run() {
+                    db.restartServer(false);
+                }
+                });
+            db.delayInGUI(ValuesBase.ServerRebootDelay/2,new Runnable() {
+                @Override
+                public void run() {
+                    db.shutdown();
+                }
+                });
             return errorList;
             }
         };
