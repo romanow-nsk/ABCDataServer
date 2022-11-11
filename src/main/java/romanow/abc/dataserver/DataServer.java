@@ -31,6 +31,7 @@ import spark.Route;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -147,19 +148,34 @@ public class DataServer implements I_DataServer{
         spark.Spark.port(port);
         spark.Spark.threadPool(ValuesBase.SparkThreadPoolSize);
         spark.Spark.staticFiles.location("/public");                            // Обязательно
-        spark.Spark.notFound((req,res)->{
-            StringBuffer ff = new StringBuffer();
-            InputStreamReader in = new InputStreamReader(new FileInputStream(dataServerFileDir()+"/index.html"));
-            int cc;
-            while((cc=in.read())!=-1){
-                ff.append((char)cc);
+        spark.Spark.notFound(new Route() {
+            @Override
+            public Object handle(Request request, Response response) throws Exception {
+                String uri = "public"+request.raw().getRequestURI();
+                System.out.println("Файл:"+uri);
+                HttpServletResponse res = response.raw();
+                OutputStream out = res.getOutputStream();
+                InputStream in = getClass().getClassLoader().getResourceAsStream(uri);
+                if (in==null){
+                    res.sendError(ValuesBase.HTTPNotFound,"File "+uri+" не найден");
+                    response.body("");
+                    return null;
+                    }
+                ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                int cc = 0;
+                while ((cc=in.read())!=-1)
+                    temp.write(cc);
+                temp.flush();
+                byte bb[] = temp.toByteArray();
+                temp.close();
+                response.raw().setContentLengthLong(bb.length);
+                out.write(bb);
+                in.close();
+                out.close();
+                return null;
                 }
-            in.close();
-            return ff.toString();
-            //res.redirect("/index.html"); return null;
             });
-        //spark.Spark.notFound((req,res)->{res.redirect("/index.html"); return null; });
-        spark.Spark.staticFiles.externalLocation("/public/static");     // Не понятно
+        spark.Spark.staticFiles.externalLocation("/public");            // Не понятно
         spark.Spark.staticFileLocation("/public");                            // Не понятно
         spark.Spark.externalStaticFileLocation("/public");              // Не понятно
         //https://gist.github.com/zikani03/7c82b34fbbc9a6187e9a CORS для Spark
@@ -227,6 +243,36 @@ public class DataServer implements I_DataServer{
                         return null;
                         }
                 });
+         //------------------ Обработка запросов на прямое чтение файлов из каталога ресурсов
+         /*
+         spark.Spark.get("/web/*", new Route() {
+             @Override
+             public Object handle(Request request, Response response) throws Exception {
+                 String fname="public/"+request.splat()[0];
+                 System.out.println("Файл:"+fname);
+                 HttpServletResponse res = response.raw();
+                 OutputStream out = res.getOutputStream();
+                 InputStream in = getClass().getClassLoader().getResourceAsStream(fname);
+                 if (in==null){
+                     res.sendError(ValuesBase.HTTPNotFound,"File "+fname+" не найден");
+                     response.body("");
+                     return null;
+                    }
+                 ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                 int cc = 0;
+                 while ((cc=in.read())!=-1)
+                     temp.write(cc);
+                 temp.flush();
+                 byte bb[] = temp.toByteArray();
+                 temp.close();
+                 response.raw().setContentLengthLong(bb.length);
+                 out.write(bb);
+                 in.close();
+                 out.close();
+                 return null;
+             }
+         });
+          */
         //-------------------------------------------------------------------------------------------------
         /*
         spark.Spark.before("/file/*", new Filter() {
