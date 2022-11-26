@@ -18,9 +18,11 @@ public class BackGroundOperation {
                 answer = ss;
                 waitForAnswer.interrupt();
                 state = BGDone;
+                ss.calcDuration();
                 break;
             case BGDone:
                 answer.addError(ss);
+                ss.calcDuration();
                 break;
             }
         }
