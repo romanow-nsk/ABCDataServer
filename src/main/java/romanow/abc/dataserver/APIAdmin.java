@@ -562,7 +562,7 @@ public class APIAdmin extends APIBase{
              return errors;
              }
          try {
-             Class cls = Class.forName("romanow.abc.dataserver.operations."+value.name());
+             Class cls = Class.forName(ValuesBase.DBOperationPrefix+"."+value.name());
              I_SystemOperations module = (I_SystemOperations) cls.newInstance();
              module.execute(db,this,errors);
              } catch (Exception ee){
