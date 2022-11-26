@@ -755,6 +755,7 @@ public class APIAdmin extends APIBase{
         }
         return out;
     }
+    /*
     private String squeezyTables(){
         Object olist[] = ValuesBase.EntityFactory().classList().toArray();
         String out="";
@@ -810,43 +811,6 @@ public class APIAdmin extends APIBase{
         }
         return out;
     }
-    /*
-    private String setSendToContractorState() throws UniException {
-        MaintenanceList list = db.maintenance.getMaintenanceByCondition(0,-1,ValuesBase.MMonthly,-1,-1,ValuesBase.DateNone,0,0,0,0,0);
-        for(Maintenance main : list){
-            main.setWorkCompletionReportState(ValuesBase.WCRSendToContractor);
-            db.mongoDB.update(main);
-        }
-        return "Состояние акта изменено в "+list.size()+" заявках";
-    }
-     */
-    /*
-    public String changeContracts() throws UniException {
-        int cnt=0;
-        EntityList<Entity> list = db.mongoDB.getAll(new Contract());
-        for(Entity ent : list){
-            Contract contract = (Contract) ent;
-            contract.getFacilities().clear();
-            long facId = contract.getFacility().getOid();
-            contract.getFacilities().add(facId);
-            Facility fac = new Facility();
-            db.mongoDB.getById(fac,facId);
-            contract.getContractor().setOid(fac.getContractor().getOid());
-            db.mongoDB.update(contract);
-            cnt++;
-            }
-        int cnt1=0;
-        list = db.mongoDB.getAll(new Maintenance());
-        for(Entity ent : list){
-            Maintenance main = (Maintenance)ent;
-            if (main.getPaymentState()== ValuesBase.PINone)
-                continue;
-            main.setFirstInGroup(true);
-            db.mongoDB.add(main);
-            cnt1++;
-            }
-        return "Обновлено "+cnt+" договоров";
-        }
     */
     public String squeezyArtifacts() throws UniException {
         int count1=0;
@@ -887,6 +851,7 @@ public class APIAdmin extends APIBase{
             }
         return "GPS: удалено "+count1+" записей\n";
         }
+    /*
     public String testArtifacts() throws UniException {
         int count=0;
         EntityList<Entity> zz = db.mongoDB.getAll(new Artifact());
@@ -900,9 +865,10 @@ public class APIAdmin extends APIBase{
             art.setFileLost(fail);
             art.setFileSize(fail ? 0 : ff.length());
             db.mongoDB.update(art);
-        }
+            }
         return "Всего "+zz.size()+" артефактов, отсутствуют "+count+" файлов";
-    }
+        }
+     */
     //------------------ Сбор мусора ------------------------------------------------------------
     public String removeNonArchiveArtifacts() throws UniException {
         EntityList<Entity> list = db.mongoDB.getAll(new ReportFile(),ValuesBase.GetAllModeActual,1);
