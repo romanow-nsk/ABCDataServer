@@ -947,20 +947,7 @@ public class APIAdmin extends APIBase{
             }
         return "Скопировано аккаунтов "+out.size();
         }
-    public String clearContent() throws Exception {
-        String out="";
-        out += clearTable("PaymentItem");
-        out += clearTable("Shift");
-        out += clearTable("Maintenance");
-        out += clearTable("MaintenanceJob");
-        out += clearTable("Problem");
-        out += clearTable("StatePoint");
-        out += clearTable("BKOperation");
-        out += clearTable("DefectSheet");
-        out += clearTable("PaymentOrder");
-        out += clearTable("ReportFile");
-        return out;
-        }
+
     RouteWrap apiSetCashMode = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
