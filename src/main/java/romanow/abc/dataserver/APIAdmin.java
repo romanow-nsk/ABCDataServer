@@ -2,6 +2,7 @@ package romanow.abc.dataserver;
 
 import romanow.abc.core.*;
 
+import romanow.abc.core.constants.ConstValue;
 import romanow.abc.core.constants.TableItem;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.*;
@@ -24,6 +25,7 @@ import romanow.abc.core.mongo.RequestStatistic;
 import romanow.abc.core.utils.Address;
 import romanow.abc.core.utils.GPSPoint;
 import romanow.abc.core.utils.OwnDateTime;
+import romanow.abc.dataserver.operations.I_SystemOperations;
 import spark.Request;
 import spark.Response;
 
@@ -75,16 +77,24 @@ public class APIAdmin extends APIBase{
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             if (!db.users.isOnlyForSuperAdmin(req,res))
                 return null;
-            if (!background.isBusy()){
-                db.createHTTPError(res, ValuesBase.HTTPRequestError, "Фоновая операция не выполняется");
-                return null;
-            }
-            String ss = background.getAnswer();
-            if (ss.length()!=0)
-                return new JString(ss);
-            background.waitThread();
-            return new JString(background.getAnswer());
-        }};
+            ErrorList errors = new ErrorList();
+            int state = background.getState();
+            if (state==BackGroundOperation.BGFree){
+                errors.addError("Фоновая операция не выполняется");
+                return errors;
+                }
+            if (state==BackGroundOperation.BGDone){
+                return background.getAnswer();
+                }
+            if (state==BackGroundOperation.BGInProcess){
+                background.waitThread();
+                if (background.getState()==BackGroundOperation.BGInProcess)
+                    return new ErrorList();
+                else
+                    return background.getAnswer();
+                }
+            return new JString("");
+            }};
     RouteWrap apiPrepareDB = new RouteWrap() {
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
@@ -93,10 +103,9 @@ public class APIAdmin extends APIBase{
                 return null;
             ParamInt oper = new ParamInt(req,res,"operation");
             if (!oper.isValid()) return null;
-            if (!background.testAndSetBusy()){
-                db.createHTTPError(res, ValuesBase.HTTPRequestError, "Фоновая операция уже выполняется");
-                return null;
-            }
+            ErrorList ss = background.testAndSetBusy();
+            if (!ss.isEmpty())
+                return ss;
             final int code=oper.getValue();
             System.out.println("Операция над БД: "+code);
             new Thread(new Runnable() {     // В потоке
@@ -104,14 +113,15 @@ public class APIAdmin extends APIBase{
                 public void run() {
                     String out="";
                     try {
-                        String xx = systemOperation(code);
-                        background.setAnswer("Завершение фоновой операции\n"+xx);
-                    } catch(Exception ee){
-                        background.setAnswer("Ошибка фона:"+ Utils.createFatalMessage(ee));
-                    }
+                        ErrorList xx = systemOperation(code);
+                        xx.addInfo("Завершение фоновой операции");
+                        background.finish(xx);
+                       } catch(Exception ee){
+                            background.finish(new ErrorList().addError("Ошибка фона:"+ Utils.createFatalMessage(ee)));
+                            }
                 }
             }){}.start();
-            return new JString("Операция в фоне, ждите...");
+            return new ErrorList("Операция в фоне, ждите...");
         }};
     RouteWrap apiReboot = new RouteWrap() {
         @Override
@@ -544,8 +554,23 @@ public class APIAdmin extends APIBase{
     public String additionalSystemOperations (int code) throws Exception{
         return "Нет операции";
         }
-    private String systemOperation(int code) throws Exception{
-        String out="Нет операции";
+    private ErrorList systemOperation(int code) throws Exception{
+        ErrorList errors = new ErrorList();
+        ConstValue value = ValuesBase.constMap().getGroupMapByValue("DBOperation").get(code);
+         if (value==null){
+             errors.addError("Операция не поддерживается");
+             return errors;
+             }
+         try {
+             Class cls = Class.forName("romanow.abc.dataserver.operations."+value.name());
+             I_SystemOperations module = (I_SystemOperations) cls.newInstance();
+             module.execute(db,this,errors);
+             } catch (Exception ee){
+                 errors.addError("Ошибка модуля операции "+value.name()+": "+ee.toString());
+                 return errors;
+                 }
+
+        /*
         switch (code) {
             case ValuesBase.DBOBackLinks:
                 out = createEntityBacks();
@@ -568,9 +593,12 @@ public class APIAdmin extends APIBase{
                 } catch (Exception ee){}
                 out = "Операция завершена";
                 break;
-            default: return additionalSystemOperations(code);
+            default:
+                errors.addError("Нет операции");
+                return errors;
             }
-        return out;
+         */
+        return errors;
     }
 
     RouteWrap apiTestCall = new RouteWrap() {

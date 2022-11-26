@@ -1,44 +1,62 @@
 package romanow.abc.dataserver;
 
+import romanow.abc.core.ErrorList;
 import romanow.abc.core.constants.ValuesBase;
 
 public class BackGroundOperation {
-    private String answer="";                       // Ответ фонового запроса
+    public final static int BGFree=0;               // Нет операции
+    public final static int BGInProcess=1;          // Выполняется
+    public final static int BGDone=2;               // Закончена, но не опрошено
+    private ErrorList answer=new ErrorList();       // Ответ фонового запроса
     private Thread waitForAnswer = new Thread();    // Поток задержки ответа
-    private boolean busy=false;                     // Признак выполнения фоновой операции
-    public synchronized void setAnswer(String ss){
-        answer = ss;
-        waitForAnswer.interrupt();
-        setNoBusy();
+    private int state=BGFree;                       // Состояние выполнения операции
+    public synchronized void finish(ErrorList ss){
+        switch (state){
+            case BGFree:
+                break;
+            case BGInProcess:
+                answer = ss;
+                waitForAnswer.interrupt();
+                state = BGDone;
+                break;
+            case BGDone:
+                answer.addError(ss);
+                break;
+            }
         }
-    public synchronized String getAnswer(){
-        String ss = answer;
-        answer="";
-        return ss;
+    public synchronized ErrorList getAnswer(){
+        if (state!=BGDone)
+            return null;
+        state = BGFree;
+        return answer;
         }
-    public synchronized boolean isBusy(){
-        return busy;
+    public synchronized int getState(){
+        return state;
         }
-    public synchronized void setNoBusy(){
-        busy=false;
-        }
-    public synchronized boolean testAndSetBusy(){
-        if (busy) return false;
-        busy = true;
-        return true;
+    public synchronized ErrorList testAndSetBusy(){
+        if (state==BackGroundOperation.BGDone){
+            answer.addInfo("Завершение предыдущей операции: повторите новую");
+            return answer;
+            }
+        if (state==BackGroundOperation.BGInProcess){
+            return new ErrorList("Фоновая операция уже выполняется");
+            }
+        state = BGInProcess;
+        answer.clear();
+        return answer;
         }
     public void waitThread() {
         waitForAnswer = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(ValuesBase.HTTPTimeOut/2*1000);
+                    Thread.sleep(ValuesBase.HTTPTimeOut/3*1000);
                     } catch (InterruptedException e) {}
                 synchronized (waitForAnswer){
                     waitForAnswer.notifyAll();          // Разбудить ЗАПРОС
                     }
-            }
-        });
+                }
+            });
         waitForAnswer.start();
         synchronized (waitForAnswer){
             try {
