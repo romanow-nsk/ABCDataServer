@@ -364,7 +364,7 @@ public class DataServer implements I_DataServer{
         }
     public void shutdown(){
         if (!isRun) return;
-        createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Останов сервера сервера","");
+        createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Останов сервера","");
         clock.shutdown();
         shutDown=true;
         closeLogFile();
