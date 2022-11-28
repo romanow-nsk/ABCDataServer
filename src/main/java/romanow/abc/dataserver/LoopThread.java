@@ -3,14 +3,14 @@ package romanow.abc.dataserver;
 import lombok.Getter;
 
 public class LoopThread{
-    private Thread loopThread=null;
-    private boolean stop=false;
-    private  int delay;
-    private I_LoopBack back;
-    @Getter private String name;
+    private Thread loopThread=null; // Поток
+    private boolean stop=false;     // Двухфазное завершение
+    private  int delay;             // Интерфал цикла
+    private I_LoopBack back;        // События обратного вызова
+    @Getter private String name;    // Имя потока ()
     public void shutdown(){
-        stop=true;
-        loopThread.interrupt();
+        stop=true;                  // Двухфазное завершение
+        loopThread.interrupt();     // Прервать sleep
         }
     public LoopThread(String name0,int delayInSec, I_LoopBack loopBack){
         delay = delayInSec;
@@ -28,15 +28,16 @@ public class LoopThread{
                     if (stop)
                         break;
                     try {
-                        back.run();
-                        } catch (Exception ee){
+                        back.run();                 // Выполнение кода
+                        } catch (Exception ee){     // Перехват исключений
                             if (back.onException(name,ee))
                                 stop=true;
                             }
                 }
-            back.onFinish(name);
+            back.onFinish(name);                    // Уведомление о завершении
             }
         });
+    loopThread.setName(name);
     loopThread.start();
     }
 }
