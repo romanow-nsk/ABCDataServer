@@ -368,23 +368,26 @@ public class APICommon extends APIBase {
         workSettings.setFieldValueString(fld,value);
         db.mongoDB.update(workSettings);
     }
-    public synchronized WorkSettingsBase getWorkSettings() throws UniException {
+    public synchronized WorkSettingsBase getWorkSettings(){
         if (workSettings!=null)
             return workSettings;
         workSettings = ValuesBase.env().currentWorkSettings();
-        ArrayList<Entity> list = db.mongoDB.getAll(workSettings,ValuesBase.GetAllModeActual,1);
-        if (list.size()==0){
-            db.mongoDB.clearTable("WorkSettings");
-            db.mongoDB.add(workSettings);
-            System.out.println("Созданы рабочие настройки");
-            return workSettings;
-            }
-        else{
-            System.out.println("Прочитаны рабочие настройки");
-            workSettings = (WorkSettingsBase) list.get(0);
-            return workSettings;
-            }
-
+        try {
+            ArrayList<Entity> list = db.mongoDB.getAll(workSettings, ValuesBase.GetAllModeActual, 1);
+            if (list.size() == 0) {
+                db.mongoDB.clearTable("WorkSettings");
+                db.mongoDB.add(workSettings);
+                System.out.println("Созданы рабочие настройки");
+                return workSettings;
+            } else {
+                System.out.println("Прочитаны рабочие настройки");
+                workSettings = (WorkSettingsBase) list.get(0);
+                return workSettings;
+                }
+            } catch (UniException ee){
+                System.out.println("Ошабка создания рабочих настроек\n"+ee.toString());
+                return workSettings;
+                }
         }
 
     public synchronized void changeServerState(I_ChangeRecord todo) throws UniException {

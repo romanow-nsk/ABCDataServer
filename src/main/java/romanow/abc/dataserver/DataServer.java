@@ -66,8 +66,8 @@ public class DataServer implements I_DataServer{
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
-    public boolean traceMode = false;
     protected LockSleep serverLock = new LockSleep(false);
+    public boolean traceMode(){ return true; }
     //-------------------------------------------------------------------------
     public StringFIFO getConsoleLog() {
         return consoleLog; }
@@ -97,7 +97,6 @@ public class DataServer implements I_DataServer{
             } catch(Exception ee){ System.out.println("Mongo is not started "+ee.toString());}
         }
     */
-
     public void setMIMETypes(){
         //for(int i=0;i<ValuesBase.ArtifactExt.length;i++)
         //    spark.Spark.staticFiles.registerMimeType(ValuesBase.ArtifactExt[i],ValuesBase.ArtifactMime[i]);
