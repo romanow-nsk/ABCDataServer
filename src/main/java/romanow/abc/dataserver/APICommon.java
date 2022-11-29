@@ -362,7 +362,7 @@ public class APICommon extends APIBase {
         getWorkSettings();
         workSettings.setFieldValueBoolean(fld,value);
         db.mongoDB.update(workSettings);
-    }
+        }
     public synchronized void updateWorkSettingsString(String fld, String value) throws UniException {
         getWorkSettings();
         workSettings.setFieldValueString(fld,value);
@@ -523,7 +523,7 @@ public class APICommon extends APIBase {
                     ctx.wasCalled();
                 }
             }
-        db.serverLock.unlock(5);
+        //  db.serverLock.unlock(5);
         return new JInt(count);
         }
     RouteWrap apiKeepAlive = new RouteWrap(false) {

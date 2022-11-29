@@ -1,6 +1,7 @@
 package romanow.abc.dataserver.ftp;
 
 import romanow.abc.core.constants.ValuesBase;
+import romanow.abc.dataserver.DataServer;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,12 +12,14 @@ public class ServerFileReader extends Thread{
     private DataInputStream is;
     private DataOutputStream os;
     private ServerFileAcceptor parent;
+    private DataServer db;
     private String fname="";
     public String getFileName(){ return fname; }
-    public  ServerFileReader(String fileDir0, Socket sk0,ServerFileAcceptor par){
+    public  ServerFileReader(DataServer db0,String fileDir0, Socket sk0,ServerFileAcceptor par){
         fileDir = fileDir0;
         sk = sk0;
         parent = par;
+        db = db0;
         start();
         }
     public void close(){
@@ -59,7 +62,8 @@ public class ServerFileReader extends Thread{
                     os.write(bb,0,(int)sz2);
                     int proc = (int)((sz0-fileSize)*100/sz0);
                     if (proc >= oldProc+10){
-                        System.out.println(proc+" %");
+                        if (db.traceMid())
+                            System.out.println(proc+" %");
                         oldProc = proc;
                         }
                     }

@@ -349,7 +349,8 @@ public class APIArtifact extends APIBase{
                 out.write(bb,0,(int)sz2);
                 int proc = (int)((sz0-fileSize)*100/sz0);
                 if (proc >= oldProc+10){
-                    System.out.println(proc+" %");
+                    if (db.traceMid())
+                        System.out.println(proc+" %");
                     oldProc = proc;
                     }
                 }

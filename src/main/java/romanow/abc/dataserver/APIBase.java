@@ -27,7 +27,7 @@ public class APIBase<T extends DataServer> {
         public abstract Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception;
         @Override
         public Object handle(Request req, Response res){
-            if (db.traceMode())
+            if (db.traceMax())
                 System.out.println("+++"+req.pathInfo());
             synchronized (db.serverLock){
             //db.serverLock.lock(-1);
@@ -41,7 +41,7 @@ public class APIBase<T extends DataServer> {
                 Object out = _handle(req,res, statistic);
                 state.decRequestNum();
                 //db.serverLock.unlock(-1);
-                if (db.traceMode())
+                if (db.traceMax())
                     System.out.println("---"+req.pathInfo());
                 return out==null ? res.body() : db.toJSON(out, req, statistic);
                 } catch (Exception ee) {
@@ -54,7 +54,7 @@ public class APIBase<T extends DataServer> {
                     } catch (UniException e) {}
                     db.createHTTPError(res, ValuesBase.HTTPException, mes);
                     //db.serverLock.unlock(-1);
-                    if (db.traceMode())
+                    if (db.traceMax())
                         System.out.println("---"+req.pathInfo());
                     }
                 return res.body();
