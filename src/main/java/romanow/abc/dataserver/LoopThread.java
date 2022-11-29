@@ -23,8 +23,11 @@ public class LoopThread{
             public void run() {
                 while(!stop){
                     try {
-                        Thread.sleep(delay*1000);
-                        } catch (InterruptedException e) {}
+                        if (delay!=0)
+                            Thread.sleep(delay*1000);
+                        else
+                            Thread.yield();         // Задержка 0 - отдать процессор
+                        } catch (Exception e) {}
                     if (stop)
                         break;
                     try {
