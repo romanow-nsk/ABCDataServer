@@ -13,6 +13,7 @@ public class ClockController<T extends DataServer> extends Thread{
     public ClockController(T db0){
         db = db0;
         lastDay.onlyDate();
+        setName("ClockController");
         start();
         }
     public void run() {

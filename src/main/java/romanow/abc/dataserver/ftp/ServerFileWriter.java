@@ -17,6 +17,7 @@ public class ServerFileWriter extends Thread{
         fileDir = fileDir0;
         sk = sk0;
         parent = par;
+        setName("ServerFileWriter");
         start();
         }
     public void close(){

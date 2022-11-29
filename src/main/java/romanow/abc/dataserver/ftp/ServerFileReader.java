@@ -20,6 +20,7 @@ public class ServerFileReader extends Thread{
         sk = sk0;
         parent = par;
         db = db0;
+        setName("ServerFileReader");
         start();
         }
     public void close(){

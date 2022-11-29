@@ -74,7 +74,7 @@ public class ConsoleServer {
                 }
             });
         if (init.equals("target")){
-            new Thread(new Runnable() {
+            Thread tt = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -84,7 +84,9 @@ public class ConsoleServer {
                     System.setOut(new PrintStream(log));
                     System.setErr(new PrintStream(log));
                     }
-                }).start();
+                });
+            tt.setName("ConsoleServer");
+            tt.start();
             }
         else {
             System.setOut(new PrintStream(log));

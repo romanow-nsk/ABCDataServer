@@ -71,7 +71,7 @@ public class DataServer implements I_DataServer{
     public StringFIFO getConsoleLog() {
         return consoleLog; }
     private void getAnswer(Process p){
-        new Thread(){
+        Thread tt = new Thread(){
             public void run() {
                 try {
                     InputStreamReader br = new InputStreamReader(p.getInputStream(), "UTF-8");
@@ -83,7 +83,9 @@ public class DataServer implements I_DataServer{
                     br.close();
                     } catch (Exception e) { System.out.println("Mongo error " + e.toString()); }
                 }
-            }.start();
+            };
+        tt.setName("ConsoleLog");
+        tt.start();
         }
     /*
     public void startMongo(){
