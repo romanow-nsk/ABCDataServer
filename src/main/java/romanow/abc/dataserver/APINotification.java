@@ -25,6 +25,7 @@ import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.File;
+import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -197,7 +198,7 @@ public class APINotification extends APIBase {
             props.put("mail.smtp.socketFactory.port", ""+port); //143
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.put("mail.smtp.starttls.enable", "true");
-            Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+            //Security.addProvider(new Provider())
             Session session = Session.getDefaultInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
