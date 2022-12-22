@@ -2,6 +2,7 @@ package romanow.abc.dataserver;
 
 import com.google.gson.Gson;
 import okhttp3.OkHttpClient;
+import org.apache.log4j.LogManager;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -31,12 +32,12 @@ import spark.Route;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URL;
+import java.net.ServerSocket;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+
 
 // AJAX посылает post, а браузер - get
 public class DataServer implements I_DataServer{
@@ -144,17 +145,30 @@ public class DataServer implements I_DataServer{
         mongoDB = new JDBCFactory().getDriverByIndex(mongoType);
         return restartServer(force);
         }
-     public boolean restartServer(boolean force){
-            try {
-                if (!mongoDB.openDB(port)){
-                    System.out.println("Mongo is not open");
-                    return false;
-                    }
-                } catch (UniException e) {
-                System.out.println("Mongo is not open "+e.toString());
+    public boolean restartServer(boolean force){
+        java.util.logging.Logger.getGlobal().setLevel(Level.WARNING);
+        LogManager.getLogger(org.apache.log4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        LogManager.getLogger(org.slf4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        //((ch.qos.logback.classic.Logger)LogManager.getLogger(ch.qos.logback.classic.Logger.class)).setLevel(WARN_INT);
+        //--------------------------------------------------------------------------------------------
+        try {
+            if (!mongoDB.openDB(port)){
+                System.out.println("MongoDB: БД не открыта");
+                return false;
+                }
+            } catch (UniException e) {
+                System.out.println("MongoDB: БД не открыта, "+e.toString());
                 return false;
                 }
         setMIMETypes();
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket.close();
+            } catch (Exception ee){
+                System.out.println("Ошибка порта Spark: "+ee.toString());
+                return false;
+                }
         spark.Spark.port(port);
         spark.Spark.threadPool(ValuesBase.SparkThreadPoolSize);
         spark.Spark.staticFiles.location("/public");                            // Обязательно
@@ -364,7 +378,7 @@ public class DataServer implements I_DataServer{
                 }
          clock = new ClockController(this);
         onStart();
-        return true;
+         return true;
         }
     public void addToLog(String ss){
         if (!isRun)
