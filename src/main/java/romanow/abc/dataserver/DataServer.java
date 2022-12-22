@@ -146,10 +146,10 @@ public class DataServer implements I_DataServer{
         return restartServer(force);
         }
     public boolean restartServer(boolean force){
-        java.util.logging.Logger.getGlobal().setLevel(Level.WARNING);
-        LogManager.getLogger(org.apache.log4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
-        LogManager.getLogger(org.slf4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
-        LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        //java.util.logging.Logger.getGlobal().setLevel(Level.WARNING);
+        //LogManager.getLogger(org.apache.log4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        //LogManager.getLogger(org.slf4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
+        //LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class).setLevel(org.apache.log4j.Level.OFF);
         //((ch.qos.logback.classic.Logger)LogManager.getLogger(ch.qos.logback.classic.Logger.class)).setLevel(WARN_INT);
         //--------------------------------------------------------------------------------------------
         try {
