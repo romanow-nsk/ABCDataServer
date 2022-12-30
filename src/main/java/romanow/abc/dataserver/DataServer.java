@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 // AJAX посылает post, а браузер - get
@@ -145,11 +146,24 @@ public class DataServer implements I_DataServer{
         mongoDB = new JDBCFactory().getDriverByIndex(mongoType);
         return restartServer(force);
         }
+    public void setLoggers(){
+        Logger logger =java.util.logging.Logger.getGlobal();
+        logger.setLevel(Level.OFF);
+        System.out.println("Level global: "+logger.getLevel());
+        org.apache.log4j.Logger logger2 = LogManager.getLogger(org.apache.log4j.Logger.class);
+        logger2.setLevel(org.apache.log4j.Level.OFF);
+        System.out.println("Level apache.log4j: "+logger2.getLevel());
+        logger2 = LogManager.getLogger(org.slf4j.Logger.class);
+        logger2.setLevel(org.apache.log4j.Level.OFF);
+        System.out.println("Level slf4j: "+logger2.getLevel());
+        logger2 = LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class);
+        logger2.setLevel(org.apache.log4j.Level.OFF);
+        System.out.println("Level jetty: "+logger2.getLevel());
+        logger2 = LogManager.getRootLogger();
+        logger2.setLevel(org.apache.log4j.Level.OFF);
+        System.out.println("Root Logger: "+logger2.getName()+":"+logger2.getLevel());
+        }
     public boolean restartServer(boolean force){
-        //java.util.logging.Logger.getGlobal().setLevel(Level.WARNING);
-        //LogManager.getLogger(org.apache.log4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
-        //LogManager.getLogger(org.slf4j.Logger.class).setLevel(org.apache.log4j.Level.OFF);
-        //LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class).setLevel(org.apache.log4j.Level.OFF);
         //((ch.qos.logback.classic.Logger)LogManager.getLogger(ch.qos.logback.classic.Logger.class)).setLevel(WARN_INT);
         //--------------------------------------------------------------------------------------------
         try {
@@ -377,7 +391,8 @@ public class DataServer implements I_DataServer{
                 System.out.println("Локальный клиент 1: "+e.toString());
                 }
          clock = new ClockController(this);
-        onStart();
+         setLoggers();
+         onStart();
          return true;
         }
     public void addToLog(String ss){
