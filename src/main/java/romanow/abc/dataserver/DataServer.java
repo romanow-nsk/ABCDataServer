@@ -147,20 +147,24 @@ public class DataServer implements I_DataServer{
         return restartServer(force);
         }
     public void setLoggers(){
+        //-------------- Уровни логирования не влияют на вывод в консоль -----------------------------
+        Level levelGlobal = Level.OFF;
+        org.apache.log4j.Level levelApache = org.apache.log4j.Level.OFF;
+        //-------------- Уровни логирования не влияют на вывод в консоль -----------------------------
         Logger logger =java.util.logging.Logger.getGlobal();
-        logger.setLevel(Level.OFF);
+        logger.setLevel(levelGlobal);
         System.out.println("Level global: "+logger.getLevel());
         org.apache.log4j.Logger logger2 = LogManager.getLogger(org.apache.log4j.Logger.class);
-        logger2.setLevel(org.apache.log4j.Level.OFF);
+        logger2.setLevel(levelApache);
         System.out.println("Level apache.log4j: "+logger2.getLevel());
         logger2 = LogManager.getLogger(org.slf4j.Logger.class);
-        logger2.setLevel(org.apache.log4j.Level.OFF);
+        logger2.setLevel(levelApache);
         System.out.println("Level slf4j: "+logger2.getLevel());
         logger2 = LogManager.getLogger(org.eclipse.jetty.util.log.Logger.class);
-        logger2.setLevel(org.apache.log4j.Level.OFF);
+        logger2.setLevel(levelApache);
         System.out.println("Level jetty: "+logger2.getLevel());
         logger2 = LogManager.getRootLogger();
-        logger2.setLevel(org.apache.log4j.Level.OFF);
+        logger2.setLevel(levelApache);
         System.out.println("Root Logger: "+logger2.getName()+":"+logger2.getLevel());
         }
     public boolean restartServer(boolean force){
