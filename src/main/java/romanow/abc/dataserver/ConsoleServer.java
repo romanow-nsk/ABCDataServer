@@ -1,14 +1,14 @@
 package romanow.abc.dataserver;
 
+import romanow.abc.core.*;
 import romanow.abc.core.API.RestAPIBase;
-import romanow.abc.core.I_EmptyEvent;
-import romanow.abc.core.I_String;
-import romanow.abc.core.LogStream;
-import romanow.abc.core.ServerState;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import romanow.abc.core.constants.ValuesBase;
+import romanow.abc.core.export.Excel;
+import romanow.abc.core.export.ExcelX;
+import romanow.abc.core.export.I_Excel;
 
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
@@ -61,9 +61,9 @@ public class ConsoleServer {
         service = (RestAPIBase) retrofit.create(apiFace);
         dbTarget.createAll(service, ValuesBase.DebugTokenPass);
         }
-    public void startServer(int port0,String init){
+    public void startServer(int port0,boolean init){
         port = port0;
-        dataServer.startServer(port, ValuesBase.MongoDBType36, serverBack,(init.equals("target")));
+        dataServer.startServer(port, ValuesBase.MongoDBType36, serverBack,(init));
         gblEncoding = System.getProperty("file.encoding");
         utf8 = gblEncoding.equals("UTF-8");
         asteriskBack.onEvent();
@@ -73,7 +73,7 @@ public class ConsoleServer {
                 dataServer.addToLog(ss);
                 }
             });
-        if (init.equals("target")){
+        if (init){
             Thread tt = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -95,23 +95,45 @@ public class ConsoleServer {
         }
 
     public static void main(String args[]) {
-         //----------------------------------------------------------------------------------
-        if (args.length>4){
-            System.out.println("Слишком много параметров -"+args.length);
+        String ss[]= {"port:4569","conf:BARS","iec61850:0"};
+        if (args.length!=0)
+            ss = args;
+        CommandStringData data = new CommandStringData();
+        data.parse(ss);
+        ErrorList errors = data.getErrors();
+        if (!errors.valid()){
+            System.out.println("Ошибки командной строки:\n"+errors.toString());
             return;
             }
-         String port = "4567";
-         String init = "none";
-         if (args.length>0)
-            port = args[0];
-         if (args.length>=2)
-            init = args[1];
-         System.out.println("Порт="+port);
-         ConsoleServer server = new ConsoleServer();
-         server.startServer(Integer.parseInt(port),init);
-        if(args.length==4){
-            ValuesBase.env().superUser().setLoginPhone(args[2]);
-            ValuesBase.env().superUser().setPassword(args[3]);
+        System.out.println("Порт="+data.getPort());
+        if (data.hasConf())
+            System.out.println("Конфигурация="+data.getConf());
+        ConsoleServer server = new ConsoleServer();
+        if(data.hasUser())
+            ValuesBase.env().superUser().setLoginPhone(data.getUser());
+        if (data.hasPass())
+            ValuesBase.env().superUser().setPassword(data.getPass());
+        if (!data.hasImport())
+            server.startServer(data.getPort(), data.isInit());
+        else{
+            server.startServer(data.getPort(), false);
+            try {
+                DataServer db = server.dataServer;
+                String fname = data.getImportXLS();
+                I_Excel xls = fname.endsWith("xlsx") ? new ExcelX() : new Excel();
+                db.mongoDB.clearDB();
+                fname = System.getProperty("user.dir")+"/"+fname;
+                System.out.println("Импорт БД из: "+fname);
+                String zz = xls.load(fname,db.mongoDB);
+                System.out.println(zz);
+                db.shutdown();
+                try {
+                    Thread.sleep(5*1000);
+                } catch (InterruptedException e) {}
+                server.startServer(data.getPort(), data.isInit());
+            } catch (UniException e) {
+                System.out.println("Ошибка импорта БД: "+e.toString());
             }
         }
+    }
     }
