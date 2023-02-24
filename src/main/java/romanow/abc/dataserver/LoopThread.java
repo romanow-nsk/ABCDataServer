@@ -4,11 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class LoopThread{
-    private Thread loopThread=null;     // Поток
-    private boolean stop=false;         // Двухфазное завершение
-    private  int delay;                 // Интерфал цикла
-    private I_LoopBack back;    // События обратного вызова
-    private String name;        // Имя потока ()
+    private Thread loopThread=null; // Поток
+    private boolean stop=false;     // Двухфазное завершение
+    private  int delay;             // Интерфал цикла
+    private I_LoopBack back;        // События обратного вызова
+    private String name;            // Имя потока ()
     public String getName() {
         return name; }
     public void setBack(I_LoopBack back) {
