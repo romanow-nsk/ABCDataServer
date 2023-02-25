@@ -7,4 +7,5 @@ public interface I_DataServer {
     public void onClock();
     public void onStart();
     public void onShutdown();
+    public String dataServerFileDir();
     }

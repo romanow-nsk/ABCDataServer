@@ -27,16 +27,9 @@ public class ConsoleServer {
                 public void run() {
                     System.out.println(serverState.toString());
                 }
-            });
-        }
-    };
-    //---------------------------------------------------------------------
-    private I_EmptyEvent asteriskBack = new I_EmptyEvent() {
-        @Override
-        public void onEvent() {
-                System.out.println(""+dataServer.getServerState().getLastMailNumber());
-        }
-    };
+                });
+            }
+        };
     public ConsoleServer(){
         ValuesBase.init();
         dbTarget = new DBExample();
@@ -61,19 +54,18 @@ public class ConsoleServer {
         service = (RestAPIBase) retrofit.create(apiFace);
         dbTarget.createAll(service, ValuesBase.DebugTokenPass);
         }
-    public void startServer(int port0,boolean init){
-        port = port0;
-        dataServer.startServer(port, ValuesBase.MongoDBType36, serverBack,(init));
+    public void startServer(CommandStringData data){
+        port = data.getPort();
+        dataServer.startServer(port, data.getDbase(), serverBack,(data.isInit()));
         gblEncoding = System.getProperty("file.encoding");
         utf8 = gblEncoding.equals("UTF-8");
-        asteriskBack.onEvent();
         final LogStream log = new LogStream(utf8, dataServer.getConsoleLog(), new I_String() {
             @Override
             public void onEvent(String ss) {
                 dataServer.addToLog(ss);
                 }
             });
-        if (init){
+        if (data.isInit()){
             Thread tt = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -95,7 +87,7 @@ public class ConsoleServer {
         }
 
     public static void main(String args[]) {
-        String ss[]= {"port:4569","conf:BARS","iec61850:0"};
+        String ss[]= {"port:4567","dbase:SQLite"};
         if (args.length!=0)
             ss = args;
         CommandStringData data = new CommandStringData();
@@ -106,17 +98,15 @@ public class ConsoleServer {
             return;
             }
         System.out.println("Порт="+data.getPort());
-        if (data.hasConf())
-            System.out.println("Конфигурация="+data.getConf());
         ConsoleServer server = new ConsoleServer();
         if(data.hasUser())
             ValuesBase.env().superUser().setLoginPhone(data.getUser());
         if (data.hasPass())
             ValuesBase.env().superUser().setPassword(data.getPass());
         if (!data.hasImport())
-            server.startServer(data.getPort(), data.isInit());
+            server.startServer(data);
         else{
-            server.startServer(data.getPort(), false);
+            server.startServer(new CommandStringData(data.getPort(), data.getDbase()));
             try {
                 DataServer db = server.dataServer;
                 String fname = data.getImportXLS();
@@ -130,7 +120,7 @@ public class ConsoleServer {
                 try {
                     Thread.sleep(5*1000);
                 } catch (InterruptedException e) {}
-                server.startServer(data.getPort(), data.isInit());
+                server.startServer(data);
             } catch (UniException e) {
                 System.out.println("Ошибка импорта БД: "+e.toString());
             }

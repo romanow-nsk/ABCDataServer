@@ -10,18 +10,23 @@ public class CommandStringData {
     //  pass:xxxx      - пароль  суперпользователя
     //  conf:xxxx      - имя разворачиваемой конфигурации
     //  init           - инициализация БД
+    //  dbase:xxxx     - тип СУБД
     @Getter private ErrorList errors=new ErrorList();
     @Getter private int port = 4567;
     @Getter private boolean init=false;
     @Getter private String user=null;
     @Getter private String pass=null;
-    @Getter private String conf=null;
+    @Getter private String dbase=null;
     @Getter private String importXLS=null;
     public boolean hasUser(){ return user!=null; }
     public boolean hasPass(){ return pass!=null; }
-    public boolean hasConf(){ return conf!=null; }
+    public boolean hasDBase(){ return dbase!=null; }
     public boolean hasImport(){ return importXLS!=null; }
     public boolean isOther(String ss){ return false; }
+    public CommandStringData(int port0, String dBase0){
+        port = port0;
+        dbase = dBase0;
+        }
     public CommandStringData(){}
     public void parse(String pars[]){
         for(String ss : pars){
@@ -37,10 +42,6 @@ public class CommandStringData {
                 pass = ss.substring(5).trim();
                 }
             else
-            if (ss.startsWith("conf:")){
-                conf = ss.substring(5).trim();
-                }
-            else
             if (ss.startsWith("port:")){
                 try {
                     port = Integer.parseInt(ss.substring(5).trim());
@@ -51,6 +52,10 @@ public class CommandStringData {
             else
             if (ss.startsWith("import:")){
                 importXLS = ss.substring(7).trim();
+                }
+            else
+            if (ss.startsWith("dbase:")){
+                dbase = ss.substring(6).trim();
                 }
             else{
                 if (!isOther(ss))

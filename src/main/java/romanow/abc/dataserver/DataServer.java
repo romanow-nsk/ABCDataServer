@@ -146,6 +146,27 @@ public class DataServer implements I_DataServer{
         mongoDB = new JDBCFactory().getDriverByIndex(mongoType);
         return restartServer(force);
         }
+    public boolean startServer(int port0, I_ServerState ss,boolean force){
+        return startServer(port0,null,ss,force);
+        }
+    public boolean startServer(int port0, String dbType, I_ServerState ss,boolean force){
+        masterBack = ss;
+        port = port0;
+        System.out.println(System.getProperty("user.dir"));
+        System.out.println(System.getProperty("os.name"));
+        System.out.println("PID="+ Utils.getPID());
+        mongoDB = null;
+        if (dbType!=null){
+            mongoDB = new JDBCFactory().getDriverByName(dbType);
+            if (mongoDB==null)
+                System.out.println("Не найдет тип БД: "+dbType);
+            }
+        if (mongoDB==null){
+            mongoDB = new MongoDB36();
+            System.out.println("Установлен тип БД: "+mongoDB.getDriverName());
+            }
+        return restartServer(force);
+        }
     public void setLoggers(){
         //-------------- Уровни логирования не влияют на вывод в консоль -----------------------------
         Level levelGlobal = Level.OFF;
