@@ -25,9 +25,6 @@ import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.File;
-import java.security.Provider;
-import java.security.Security;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class APINotification extends APIBase {

@@ -1,8 +1,5 @@
 package romanow.abc.dataserver;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class LoopThread{
     private Thread loopThread=null; // Поток
     private boolean stop=false;     // Двухфазное завершение

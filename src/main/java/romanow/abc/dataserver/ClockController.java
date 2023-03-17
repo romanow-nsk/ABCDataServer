@@ -2,9 +2,6 @@ package romanow.abc.dataserver;
 
 import romanow.abc.core.utils.OwnDateTime;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class ClockController<T extends DataServer> extends Thread{
     protected T db;                     // Головной модуль сервера данных
     protected boolean shutdown=false;   // Признак завершения работы

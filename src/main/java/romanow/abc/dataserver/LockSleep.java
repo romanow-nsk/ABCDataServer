@@ -1,10 +1,5 @@
 package romanow.abc.dataserver;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.concurrent.locks.ReentrantLock;
-
 public class LockSleep{
     public final static int LockSleepTime=20;
     public LockSleep(){}

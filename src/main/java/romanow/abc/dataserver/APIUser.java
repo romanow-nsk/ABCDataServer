@@ -14,7 +14,6 @@ import romanow.abc.core.entity.users.User;
 import romanow.abc.core.mongo.RequestStatistic;
 import spark.Request;
 import spark.Response;
-import spark.Spark;
 
 import java.util.ArrayList;
 

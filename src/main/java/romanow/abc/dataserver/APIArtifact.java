@@ -9,7 +9,6 @@ import romanow.abc.core.entity.artifacts.Artifact;
 import romanow.abc.core.entity.artifacts.ArtifactList;
 import romanow.abc.core.entity.artifacts.ArtifactTypes;
 import romanow.abc.core.entity.baseentityes.JEmpty;
-import romanow.abc.core.entity.baseentityes.JLong;
 import romanow.abc.core.entity.baseentityes.JString;
 import romanow.abc.core.mongo.DBQueryList;
 import romanow.abc.core.mongo.I_DBQuery;

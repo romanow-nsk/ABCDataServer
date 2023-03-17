@@ -1,7 +1,6 @@
 package romanow.abc.dataserver.operations;
 
 import romanow.abc.core.ErrorList;
-import romanow.abc.core.UniException;
 import romanow.abc.core.entity.Entity;
 import romanow.abc.core.entity.EntityList;
 import romanow.abc.core.entity.artifacts.Artifact;

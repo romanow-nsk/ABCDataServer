@@ -3,7 +3,6 @@ package romanow.abc.dataserver;
 import com.google.gson.Gson;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.Entity;
-import romanow.abc.core.mongo.DAO;
 import spark.Request;
 import spark.Response;
 

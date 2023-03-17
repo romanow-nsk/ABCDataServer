@@ -11,10 +11,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 
 public class SessionController extends Thread{
     private DataServer db;
