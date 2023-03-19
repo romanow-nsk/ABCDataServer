@@ -10,9 +10,10 @@ public class LoopThread{
         return name; }
     public void setBack(I_LoopBack back) {
         this.back = back; }
-    public void shutdown(){
+    public synchronized void shutdown(){
         stop=true;                      // Двухфазное завершение
-        loopThread.interrupt();         // Прервать sleep
+        if (loopThread!=null)
+            loopThread.interrupt();         // Прервать sleep
         }
     public LoopThread(String name0,int delayInSec, I_LoopBack loopBack){
         delay = delayInSec;
@@ -22,6 +23,14 @@ public class LoopThread{
     public LoopThread(String name0,int delayInSec){
         delay = delayInSec;
         name = name0;
+        }
+    public LoopThread(String name0,I_LoopBack loopBack){
+        back = loopBack;
+        name = name0;
+        }
+    public synchronized void start(int delayInSec){
+        delay = delayInSec;
+        start();
         }
     public  void start(){
         loopThread = new Thread(new Runnable() {
