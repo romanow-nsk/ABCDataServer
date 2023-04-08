@@ -44,7 +44,6 @@ public class APIAdmin extends APIBase{
         spark.Spark.post("/api/admin/deploy", apiDeploy);
         spark.Spark.post("/api/admin/execute", apiExecute);
         spark.Spark.post("/api/admin/shutdown", apiShutdown);
-        spark.Spark.post("/api/admin/asterisk/setmailcount", apiSetMailCount);
         spark.Spark.get("/api/admin/preparedb",apiPrepareDB);
         spark.Spark.get("/api/admin/testcall",apiTestCall);
         spark.Spark.get("/api/admin/longpoll",apiBackgroundAnswer);
@@ -309,27 +308,6 @@ public class APIAdmin extends APIBase{
             return new JString("Завершение");
         }
     };
-
-
-    RouteWrap apiSetMailCount = new RouteWrap() {
-        @Override
-        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
-            String out = "";
-            if (!db.users.isOnlyForSuperAdmin(req,res))
-                return null;
-            ParamInt mailCount = new ParamInt(req, res, "mailcount");
-            if (!mailCount.isValid())
-                return null;
-            db.changeServerState(new I_ChangeRecord() {
-                @Override
-                public boolean changeRecord(Entity ent) {
-                    ((ServerState)ent).setLastMailNumber(mailCount.getValue());
-                    return true;
-                }
-            });
-            return new JEmpty();
-            }
-        };
 
     RouteWrap routeImportXLS = new RouteWrap() {
         @Override

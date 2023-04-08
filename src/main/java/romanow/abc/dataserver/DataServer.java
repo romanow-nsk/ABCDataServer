@@ -392,8 +392,6 @@ public class DataServer implements I_DataServer{
                 @Override
                 public boolean changeRecord(Entity ent) {
                     ServerState state =(ServerState)ent;
-                    state.setAsrteiskDialOn(false);
-                    state.setAsteriskMailOn(false);
                     state.init();
                     return true;
                     }
