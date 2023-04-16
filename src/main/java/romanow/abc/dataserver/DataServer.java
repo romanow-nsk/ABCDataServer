@@ -114,6 +114,9 @@ public class DataServer implements I_DataServer{
         //for(int i=0;i<ValuesBase.ArtifactExt.length;i++)
         //    spark.Spark.staticFiles.registerMimeType(ValuesBase.ArtifactExt[i],ValuesBase.ArtifactMime[i]);
         }
+    public String getMongoNetwork(){
+        return ValuesBase.mongoServerIP;
+        }
     public String dataServerFileDir(){
         String dir =  dataServerFileDir+"/"+port;
         File path = new File(dir);
@@ -150,6 +153,9 @@ public class DataServer implements I_DataServer{
         return startServer(port0,null,ss,force);
         }
     public boolean startServer(int port0, String dbType, I_ServerState ss,boolean force){
+        return startServer(port0,dbType,ss,force,null);
+        }
+    public boolean startServer(int port0, String dbType, I_ServerState ss,boolean force, String newtwork){
         masterBack = ss;
         port = port0;
         System.out.println(System.getProperty("user.dir"));
@@ -165,6 +171,9 @@ public class DataServer implements I_DataServer{
             mongoDB = new MongoDB36();
             System.out.println("Установлен тип БД: "+mongoDB.getDriverName());
             }
+        System.out.println("Установлен тип сети: "+(newtwork==null ? "localhost" : newtwork));
+        if (newtwork!=null)
+            mongoDB.setNetwork(newtwork);
         return restartServer(force);
         }
     public void setLoggers(){
