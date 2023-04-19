@@ -325,6 +325,7 @@ public class APIArtifact extends APIBase{
             }
         };
     public boolean loadFile(String fname,Response res) throws Exception {
+        //System.out.println("Файл: ["+fname.length()+"] "+fname);
         File ff = new File(fname);
         if (!ff.exists()){
             db.createHTTPError(res,ValuesBase.HTTPNotFound,"Ошибка сервера данных: файл не найден "+fname);
@@ -378,7 +379,8 @@ public class APIArtifact extends APIBase{
                 return null;
                 }
             String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-            return loadFile(dir +"/"+art.createArtifactFileName(),res)  ? new JEmpty() : null;
+            String fullname = dir +"/"+art.createArtifactFileName();
+            return loadFile(fullname,res)  ? new JEmpty() : null;
         }};
     RouteWrap routeLoadByName = new RouteWrap(){
         @Override
@@ -389,7 +391,8 @@ public class APIArtifact extends APIBase{
             ParamBoolean root = new ParamBoolean(req,res,"root",true);
             if (!root.isValid()) return null;
             String dir = root.getValue() ? db.rootServerFileDir() : db.dataServerFileDir();
-            return loadFile(dir + "/"+fname,res)  ? new JEmpty() : null;
+            String fullname = dir + "/"+fname;
+            return loadFile(fullname,res)  ? new JEmpty() : null;
         }};
 
     RouteWrap routeArtifactConditionList = new RouteWrap() {

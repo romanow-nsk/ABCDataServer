@@ -919,7 +919,9 @@ public class APIAdmin extends APIBase{
             ParamString dirName = new ParamString(req,res,"folder");
             if (!dirName.isValid())
                 return null;
-            File ff = new File(db.dataServerFileDir()+"/"+dirName.getValue());
+            String fname = db.dataServerFileDir()+"/"+dirName.getValue();
+            //System.out.println("Каталог: "+fname);
+            File ff = new File(fname);
             if (!ff.exists()){
                 db.createHTTPError(res,ValuesBase.HTTPNotFound,"Каталог не найден "+dirName.getValue());
                 return null;
