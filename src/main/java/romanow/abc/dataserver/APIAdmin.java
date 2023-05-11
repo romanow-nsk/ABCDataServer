@@ -144,7 +144,7 @@ public class APIAdmin extends APIBase{
            }
         };
 
-    public String printConsoleOutput(Process p,boolean isWin) throws Exception{
+    public static String printConsoleOutput(Process p,boolean isWin) throws Exception{
         String out="";
         Locale current = Locale.getDefault();
         InputStream is = p.getInputStream();
