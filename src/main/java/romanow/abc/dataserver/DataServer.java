@@ -169,8 +169,8 @@ public class DataServer implements I_DataServer{
             }
         if (mongoDB==null){
             mongoDB = new MongoDB36();
-            System.out.println("Установлен тип БД: "+mongoDB.getDriverName());
             }
+        System.out.println("Установлен тип БД: "+mongoDB.getDriverName());
         System.out.println("Установлен тип сети: "+(newtwork==null ? "localhost" : newtwork));
         if (newtwork!=null)
             mongoDB.setNetwork(newtwork);
