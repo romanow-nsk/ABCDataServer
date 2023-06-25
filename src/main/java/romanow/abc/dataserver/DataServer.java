@@ -373,7 +373,7 @@ public class DataServer implements I_DataServer{
         common = new APICommon(this);
         WorkSettingsBase ws = ValuesBase.env().currentWorkSettings();
         try {
-            ws = common.getWorkSettings();
+            ws = common.getWorkSettings(true);
             dataServerFileDir = ws.isDataServerFileDirDefault() ? System.getProperty("user.dir") : ws.getDataServerFileDir();
             } catch (Exception ee){
                 System.out.println("WorkSettings is not read: "+ee.toString());

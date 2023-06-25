@@ -366,9 +366,12 @@ public class APICommon extends APIBase {
         getWorkSettings();
         workSettings.setFieldValueString(fld,value);
         db.mongoDB.update(workSettings);
-    }
+        }
     public synchronized WorkSettingsBase getWorkSettings(){
-        if (workSettings!=null)
+        return getWorkSettings(false);
+        }
+    public synchronized WorkSettingsBase getWorkSettings(boolean force){
+        if (!force && workSettings!=null)
             return workSettings;
         workSettings = ValuesBase.env().currentWorkSettings();
         try {
