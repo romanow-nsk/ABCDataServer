@@ -1,9 +1,11 @@
 package romanow.abc.dataserver;
 
+import lombok.Getter;
+
 public class LoopThread{
     private Thread loopThread=null; // Поток
     private boolean stop=false;     // Двухфазное завершение
-    private  int delay;             // Интерфал цикла
+    @Getter private  int delay;     // Интерфал цикла
     private I_LoopBack back;        // События обратного вызова
     private String name;            // Имя потока ()
     public String getName() {
