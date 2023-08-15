@@ -18,6 +18,7 @@ import romanow.abc.core.entity.baseentityes.*;
 import romanow.abc.core.entity.users.User;
 import romanow.abc.core.mongo.*;
 import romanow.abc.core.reports.*;
+import romanow.abc.core.utils.Pair;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -68,6 +69,7 @@ public class APICommon extends APIBase {
         spark.Spark.post("/api/entity/undelete", apiUndeleteById);
         spark.Spark.get("/api/debug/token", apiDebugToken);
         spark.Spark.get("/api/debug/consolelog", routeGetConsoleLog);
+        spark.Spark.get("/api/debug/consolelog/polling",routeGetConsoleLogPolling);
         spark.Spark.get("/api/const/all", apiConstAll);
         spark.Spark.get("/api/const/bygroups", apiConstByGroups);
         spark.Spark.get("/api/names/get", routeNamesByPattern);
@@ -596,6 +598,14 @@ public class APICommon extends APIBase {
             ParamInt count = new ParamInt(req,res,"count");
             if (!count.isValid()) return null;
             StringList list =  db.getConsoleLog().getStrings(count.getValue());
+            return list;
+        }};
+    RouteWrap routeGetConsoleLogPolling = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            ParamLong count = new ParamLong(req,res,"lastnum");
+            if (!count.isValid()) return null;
+            Pair<Long,StringList> list =  db.getConsoleLog().getStringsWithLastNum(count.getValue());
             return list;
         }};
     //------------------- Общий код для операций list/get/add/update----------------------------
