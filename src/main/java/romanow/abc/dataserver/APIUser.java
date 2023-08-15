@@ -63,16 +63,37 @@ public class APIUser extends APIBase{
             //sendSecurityMessage("Illegal debug pass", req);
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
             return false;
-        }
+            }
         UserContext ctx = db.getSession(req,res);
         User user = ctx.getUser();
         if (user.getTypeId()!=ValuesBase.UserSuperAdminType){
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Операция только для суперадминистратора");
             return false;
-        }
+            }
         return true;
-    }
-
+        }
+    public boolean isOnlyForAdmin(Request req, Response res) throws Exception{
+        ParamString pass = new ParamString(req, res, "pass");
+        if (!pass.isValid()) {
+            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Нет параметра - пароль");
+            return false;
+            }
+        UserContext ctx = db.getSession(req,res);
+        User user = ctx.getUser();
+        if (!(user.getTypeId()==ValuesBase.UserSuperAdminType || user.getTypeId()==ValuesBase.UserAdminType)){
+            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Операция только для администратора");
+            return false;
+            }
+        Account account = new Account();
+        db.mongoDB.getById(account,user.getAccountData().getOid(),0);
+        if (!pass.getValue().equals(account.getPassword())) {
+            //------------------------- ЗАЧЕМ -----------------------------------------
+            //sendSecurityMessage("Illegal debug pass", req);
+            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
+            return false;
+            }
+        return true;
+        }
     //-------------------------------------------------------------------------------------
     RouteWrap apiServerEnvironment = new RouteWrap(false) {
         @Override
