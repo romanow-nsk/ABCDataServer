@@ -84,9 +84,17 @@ public class APIUser extends APIBase{
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Операция только для администратора");
             return false;
             }
-        Account account = new Account();
-        db.mongoDB.getById(account,user.getAccountData().getOid(),0);
-        if (!pass.getValue().equals(account.getPassword())) {
+        long oid = user.getAccountData().getOid();
+        String pass2="";
+        if (oid!=0){
+            Account account = new Account();
+            db.mongoDB.getById(account,oid,0);
+            pass2 = account.getPassword();
+            }
+        else{
+            pass2= ValuesBase.env().superUser().getPassword();
+            }
+        if (!pass.getValue().equals(pass2)) {
             //------------------------- ЗАЧЕМ -----------------------------------------
             //sendSecurityMessage("Illegal debug pass", req);
             db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
