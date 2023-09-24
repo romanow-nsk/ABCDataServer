@@ -55,12 +55,17 @@ public class ErrorCounter {
         return endMark; }
     public String toString(){
         if (detect)
-            return "Начало "+beginMark.timeFullToString()+"\n"+mesList.get(0);
-        String out = "Окончание ["+mesList.size()+"] "+beginMark.timeFullToString()+"-"+endMark.timeFullToString();
+            return "Одиночная "+beginMark.timeFullToString()+"\n"+mesList.get(0);
+        String out = "В группе - "+mesList.size()+" "+beginMark.timeFullToString()+"-"+endMark.timeFullToString();
         for(String ss : mesList)
             out+="\n"+ss;
         return out;
-    }
+        }
+    public String toShortString(){
+        if (detect)
+            return " "+beginMark.timeFullToString();
+        return   "["+mesList.size()+"] "+beginMark.timeFullToString()+"-"+endMark.timeFullToString();
+        }
     public static void main(String ss[]){
         ErrorCounter counter = new ErrorCounter();
         ErrorCounter two;
