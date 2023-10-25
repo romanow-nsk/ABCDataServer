@@ -15,6 +15,7 @@ public class CommandStringData {
     @Getter private int port = 4567;
     @Getter private boolean init=false;
     @Getter private String user=null;
+    @Getter private String host=null;
     @Getter private String pass=null;
     @Getter private String dbase=null;
     @Getter private String importXLS=null;
@@ -32,6 +33,10 @@ public class CommandStringData {
         for(String ss : pars){
             if (ss.startsWith("init:")){
                 init = true;
+                }
+            else
+            if (ss.startsWith("host:")){
+                host = ss.substring(5).trim();
                 }
             else
             if (ss.startsWith("user:")){
