@@ -231,8 +231,8 @@ public class APICommon extends APIBase {
                 return null;
                 }
             Entity uu = (Entity) cc.newInstance();
-            boolean bb = db.mongoDB.delete(uu,id.getValue(),ValuesBase.DeleteMode);
-            return new JBoolean(bb);
+            db.mongoDB.remove(uu,id.getValue());
+            return new JBoolean(true);
             }
         };
     public int getEntityNumber(String className) throws Exception {
