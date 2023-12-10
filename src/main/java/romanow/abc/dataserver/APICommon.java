@@ -389,7 +389,7 @@ public class APICommon extends APIBase {
                 return workSettings;
                 }
             } catch (UniException ee){
-                System.out.println("Ошабка создания рабочих настроек\n"+ee.toString());
+                System.out.println("Ошибка создания рабочих настроек\n"+ee.toString());
                 return workSettings;
                 }
         }
