@@ -46,6 +46,7 @@ public class APIArtifact extends APIBase{
         Spark.post("/api/artifact/create", routeArtifactCreate);
         Spark.post("/api/artifact/convert", routeConvertArtifact);
         Spark.post("/api/artifact/fromstring", routeCreateArtifactFromString);
+        Spark.post("/api/artifact/fromstring2", routeCreateArtifactFromString2);
         }
     RouteWrap apiArtifactList = new RouteWrap() {
         @Override
@@ -145,6 +146,35 @@ public class APIArtifact extends APIBase{
             return art;
             }
         };
+    RouteWrap routeCreateArtifactFromString2 = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            ParamString fName = new ParamString(req, res, "fileName");
+            if (!fName.isValid()) return null;
+            ParamBody text = new ParamBody(req, res, JString.class);
+            if (!text.isValid()) return null;
+            Artifact art = new Artifact(fName.getValue(), 0);
+            art.setName("loaded as text");
+            int artType = ArtifactTypes.getArtifactType(art.getOriginalExt());
+            art.setType(artType);
+            db.mongoDB.add(art);
+            String dir = db.dataServerFileDir() + "/" + art.type() + "_" + art.directoryName();
+            File path = new File(dir);
+            if (!path.exists())
+                path.mkdir();
+            String fullName = dir + "/" + art.createArtifactFileName();
+            OutputStream outputStream = new FileOutputStream(fullName);
+            OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
+            writer.write(((JString)text.getValue()).getValue());
+            writer.flush();
+            writer.close();
+            File ff = new File(fullName);
+            art.setFileSize(ff.length());
+            db.mongoDB.update(art);
+            System.out.println("Артефакт " + art);
+            return art;
+        }
+    };
     public boolean deleteArtifactFile(Artifact art){
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName()
                 +"/"+art.createArtifactFileName();
