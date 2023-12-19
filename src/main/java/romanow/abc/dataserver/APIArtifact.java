@@ -13,6 +13,7 @@ import romanow.abc.core.entity.baseentityes.JString;
 import romanow.abc.core.mongo.DBQueryList;
 import romanow.abc.core.mongo.I_DBQuery;
 import romanow.abc.core.mongo.RequestStatistic;
+import romanow.abc.core.utils.Base64Coder;
 import romanow.abc.core.utils.FileNameExt;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
@@ -151,6 +152,8 @@ public class APIArtifact extends APIBase{
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             ParamString fName = new ParamString(req, res, "fileName");
             if (!fName.isValid()) return null;
+            ParamBoolean base64 = new ParamBoolean(req, res, "base64");
+            if (!base64.isValid()) return null;
             ParamBody text = new ParamBody(req, res, JString.class);
             if (!text.isValid()) return null;
             Artifact art = new Artifact(fName.getValue(), 0);
@@ -164,17 +167,26 @@ public class APIArtifact extends APIBase{
                 path.mkdir();
             String fullName = dir + "/" + art.createArtifactFileName();
             OutputStream outputStream = new FileOutputStream(fullName);
-            OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
-            writer.write(((JString)text.getValue()).getValue());
-            writer.flush();
-            writer.close();
-            File ff = new File(fullName);
-            art.setFileSize(ff.length());
+            if (!base64.getValue()){
+                OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
+                writer.write(((JString)text.getValue()).getValue());
+                writer.flush();
+                writer.close();
+                File ff = new File(fullName);
+                art.setFileSize(ff.length());
+                }
+            else{
+                byte bb[] = Base64Coder.decode(((JString)text.getValue()).getValue());
+                outputStream.write(bb);
+                outputStream.flush();
+                outputStream.close();
+                art.setFileSize(bb.length);
+                }
             db.mongoDB.update(art);
             System.out.println("Артефакт " + art);
             return art;
-        }
-    };
+            }
+        };
     public boolean deleteArtifactFile(Artifact art){
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName()
                 +"/"+art.createArtifactFileName();
