@@ -45,8 +45,8 @@ public class APIArtifact extends APIBase{
         Spark.get("/api/artifact/condition/list",routeArtifactConditionList);
         Spark.post("/api/artifact/create", routeArtifactCreate);
         Spark.post("/api/artifact/convert", routeConvertArtifact);
-        Spark.post("/api/artifact/fromstring", routeCreateArtifactFromString);
-        Spark.post("/api/artifact/fromstring2", routeCreateArtifactFromString2);
+        Spark.post("/api/artifact/fromstring/bug", routeCreateArtifactFromString);
+        Spark.post("/api/artifact/fromstring", routeCreateArtifactFromString2);
         }
     RouteWrap apiArtifactList = new RouteWrap() {
         @Override
