@@ -45,6 +45,7 @@ public class APICommon extends APIBase {
         // localhost:4567/user/login?phone=9139449081
         Spark.get("/api/entity/list", routeEntityList);
         Spark.get("/api/entity/list/last", routeEntityListLast);
+        Spark.get("/api/entity/list/byoid", routeEntityListByOid);
         Spark.post("/api/entity/add", routeEntityAdd);
         Spark.get("/api/entity/get", routeEntityGet);
         Spark.post("/api/entity/update", routeEntityUpdate);
@@ -176,6 +177,42 @@ public class APICommon extends APIBase {
             for(Entity ent : xx) {
                 if (ent.getOid()==lastId)
                     continue;
+                out.add(new DBRequest(ent, gson));
+                }
+            return out;
+        }};
+    RouteWrap routeEntityListByOid = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            ParamLong firstOid = new ParamLong(req,res,"firstOid");
+            if (!firstOid.isValid())
+                return null;
+            ParamLong lastOid = new ParamLong(req,res,"lastOid");
+            if (!lastOid.isValid())
+                return null;
+            ParamInt plevel = new ParamInt(req,res,"level",0);
+            ParamString cname = new ParamString(req,res,"classname","");
+            String className = cname.isValid() ?  cname.getValue() : "";
+            Class cc = ValuesBase.EntityFactory().getClassForSimpleName(className);
+            if (cc==null){
+                db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый класс сущности "+className);
+                return null;
+                }
+            ParamString paths = new ParamString(req,res,"paths","");
+            String pathsList = paths.isValid() ?  paths.getValue() : "";
+            Entity entity = (Entity) cc.newInstance();
+            EntityList<Entity> xx;
+            List<BasicDBObject> obj = new ArrayList<BasicDBObject>();
+            obj.add(new BasicDBObject(new BasicDBObject("oid", new BasicDBObject("$gte", firstOid.getValue()))));
+            obj.add(new BasicDBObject(new BasicDBObject("oid", new BasicDBObject("$lte", lastOid.getValue()))));
+            obj.add(new BasicDBObject("valid",true));
+            BasicDBObject query = new BasicDBObject();
+            query.put("$and", obj);
+            xx = (EntityList<Entity>)db.mongoDB.getAllByQuery(entity,query,plevel.getValue(),pathsList,statistic);
+            ArrayList<DBRequest> out = new ArrayList<>();
+            Gson gson = new Gson();
+            int size = xx.size();
+            for(Entity ent : xx) {
                 out.add(new DBRequest(ent, gson));
                 }
             return out;
