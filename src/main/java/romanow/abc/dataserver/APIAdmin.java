@@ -49,6 +49,7 @@ public class APIAdmin extends APIBase{
         spark.Spark.get("/api/admin/longpoll",apiBackgroundAnswer);
         spark.Spark.post("/api/admin/lock",apiLock);
         spark.Spark.get("/api/admin/cleardb", apiClearDB);
+        spark.Spark.get("/api/admin/clearfiles", apiClearFiles);
         spark.Spark.get("/api/admin/cleartable", apiClearTable);
         spark.Spark.post("/api/admin/cashmode", apiSetCashMode);
         spark.Spark.post("/api/admin/logfile/reopen", apiReopenLogFile);
@@ -527,8 +528,50 @@ public class APIAdmin extends APIBase{
             System.out.println("Сброс БД");
             return new JString(out);
         }};
+    //-------------------------------------------------------------------------------------------------------------------
+    RouteWrap apiClearFiles = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            String out="";
+            if (!db.users.isOnlyForSuperAdmin(req,res))
+                return null;
+            String ss = db.dataServerFileDir();
+            File ff = new File(ss);
+            if (!ff.exists())
+                ff.mkdir();
+            else
+                removeFiles(ss);
+            /*
+            File ff = new File(ss);
+            if (!ff.delete()){
+                out = "Ошибка удаления каталога "+ss;
+                System.out.println(out);
+                }
+            else
+            if (!ff.mkdir()){
+                out = "Ошибка создания каталога "+ss;
+                System.out.println(out);
+                }
+            else
+             */
+            System.out.println("Очистка каталога артефактов "+ss);
+            return new JString(out);
+        }};
+    private void removeFiles(String dir){
+        File ff = new File(dir);
+        if (!ff.isDirectory())
+            return;
+        String list[] = ff.list();
+        for(String fname : list){
+            File ff2 = new File(dir+"/"+fname);
+            if (ff2.isDirectory())
+                removeFiles(dir+"/"+fname);
+            else
+                ff2.delete();
+            }
 
-
+        }
+    //-------------------------------------------------------------------------------------------------------------------
     public String additionalSystemOperations (int code) throws Exception{
         return "Нет операции";
         }
