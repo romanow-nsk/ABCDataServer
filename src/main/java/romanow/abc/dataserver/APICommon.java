@@ -6,6 +6,7 @@ import com.mongodb.BasicDBObject;
 import romanow.abc.core.DBRequest;
 import romanow.abc.core.ServerState;
 import romanow.abc.core.UniException;
+import romanow.abc.core.constants.I_Environment;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.entity.*;
 import romanow.abc.core.entity.artifacts.Artifact;
@@ -18,6 +19,7 @@ import romanow.abc.core.entity.baseentityes.*;
 import romanow.abc.core.entity.users.User;
 import romanow.abc.core.mongo.*;
 import romanow.abc.core.reports.*;
+import romanow.abc.core.utils.OwnDateTime;
 import romanow.abc.core.utils.Pair;
 import spark.Request;
 import spark.Response;
@@ -84,7 +86,13 @@ public class APICommon extends APIBase {
         spark.Spark.post("/api/worksettings/update/int", apiWorkSettingsUpdateInt);
         spark.Spark.post("/api/worksettings/update/string", apiWorkSettingsUpdateString);
         spark.Spark.post("/api/worksettings/update/boolean", apiWorkSettingsUpdateBoolean);
+        spark.Spark.get("/api/server/clock", apiServerClock);
         }
+    RouteWrap apiServerClock = new RouteWrap() {
+        @Override
+        public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
+            return new JLong(new OwnDateTime().timeInMS());
+            }};
     //----------------------------- образцы 4 операций --------------------------------------------
     RouteWrap routeEntityAdd = new RouteWrap() {
         @Override
