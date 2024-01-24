@@ -406,6 +406,7 @@ public class DataServer implements I_DataServer{
                 });
             } catch (UniException e) { System.out.println("StartServer: "+e.toString());}
         openLogFile();
+        deleteOldLogFiles();
         //-------------------------------------- Загрузка корневого модуля -----------------------------
         ServerJarClassLoader loader = new ServerJarClassLoader(true,this);
         loader.loadClasses();
@@ -659,6 +660,36 @@ public class DataServer implements I_DataServer{
             logFile=null;
             }
         }
+    synchronized public void deleteOldLogFiles(){
+        OwnDateTime cData = new OwnDateTime();
+        String dname = dataServerFileDir()+"/log";
+        WorkSettingsBase ws = common.getWorkSettings();
+        int depth = ws.getLogDepthInDay();
+        if (depth==0)
+            return;
+        int cnt=0;
+        long diff = depth * 24 * 60 * 60 *1000;
+        File ff = new File(dname);
+        if (!ff.isDirectory())
+            return;
+        String ss[] = ff.list();
+        for(String fname : ss){
+            File ff2 = new File(dname+"/"+fname);
+            if (!ff2.isFile())
+                continue;
+            long vv = ff2.lastModified();
+            if (vv==0)
+                continue;
+            OwnDateTime dd = new OwnDateTime(vv);
+            if (cData.timeInMS()-vv > diff){
+                System.out.println("Удаление лог-файла: "+fname);
+                ff2.delete();
+                cnt++;
+                }
+            }
+        if (cnt!=0)
+            System.out.println("Удалено "+cnt+" лог-файлов");
+        }
     synchronized public void writeToLogFile(String ss){
         if (logFile==null)
             return;
@@ -667,6 +698,7 @@ public class DataServer implements I_DataServer{
         if (!dd.equals(logFileWriteDate)){
             closeLogFile();
             openLogFile();
+            deleteOldLogFiles();
             }
         try {
             logFile.write(ss);
