@@ -441,7 +441,6 @@ public class DataServer implements I_DataServer{
         createEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Останов сервера","");
         clock.shutdown();
         shutDown=true;
-        closeLogFile();
         spark.Spark.stop();
         spark.Spark.awaitStop();
         mongoDB.closeDB();
@@ -452,6 +451,7 @@ public class DataServer implements I_DataServer{
         isRun=false;
         serverBack.onStateChanged(common.getServerStateRight());
         onShutdown();
+        closeLogFile();
         }
     public void setObjectTrace(boolean objectTrace) {
         this.objectTrace = objectTrace;
