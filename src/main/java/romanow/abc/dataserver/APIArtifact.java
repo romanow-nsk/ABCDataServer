@@ -157,7 +157,11 @@ public class APIArtifact extends APIBase{
             ParamBody text = new ParamBody(req, res, JString.class);
             if (!text.isValid()) return null;
             Artifact art = new Artifact(fName.getValue(), 0);
-            art.setName("loaded as text");
+            ParamString name = new ParamString(req, res, "name");
+            if (!fName.isValid())
+                art.setName("loaded as text");
+            else
+                art.setName(name.getValue());
             int artType = ArtifactTypes.getArtifactType(art.getOriginalExt());
             art.setType(artType);
             db.mongoDB.add(art);
