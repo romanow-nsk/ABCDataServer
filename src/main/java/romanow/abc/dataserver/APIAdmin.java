@@ -152,24 +152,19 @@ public class APIAdmin extends APIBase{
         InputStream ers = p.getErrorStream();
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(is, (isWin ? "Cp866" : "UTF8")));
         BufferedReader stdError = new BufferedReader(new InputStreamReader(ers, (isWin ? "Cp866" : "UTF8")));
-        String temp=null;
+        String temp1=null;
+        String temp2=null;
         long clock = System.currentTimeMillis();
         while (p.isAlive() && System.currentTimeMillis()-clock < ValuesBase.ConsolePrintPause*1000){
-            while (is.available()!=0){
-                temp = stdInput.readLine();
-                if (temp!=null){
-                    System.out.println(temp);
-                    out += temp+"\n";
-                    clock = System.currentTimeMillis();
-                    }
+            if((temp1 = stdInput.readLine())!=null){
+                System.out.println(temp1);
+                out += temp1+"\n";
+                clock = System.currentTimeMillis();
                 }
-             while (ers.available()!=0){
-                temp = stdError.readLine();
-                if (temp!=null){
-                    System.out.println(temp);
-                    out += temp+"\n";
-                    clock = System.currentTimeMillis();
-                    }
+            if((temp2 = stdError.readLine())!=null){
+                System.out.println(temp2);
+                out += temp2+"\n";
+                clock = System.currentTimeMillis();
                 }
             }
         return out;
@@ -189,10 +184,11 @@ public class APIAdmin extends APIBase{
             for(int i=0;i<cc;i++)
                 vv[i]=tok.nextToken();
             final boolean isWin = System.getProperty("os.name").startsWith("Windows");
-            Runtime r =Runtime.getRuntime();
+            //Runtime r =Runtime.getRuntime();
             Process p =null;
             try {
-                p=r.exec(vv);
+                p = new ProcessBuilder(vv).redirectErrorStream(true).start();
+                //p=r.exec(vv);
                 String ss=  printConsoleOutput(p,isWin);
                 out+=ss;
                 p.destroy();

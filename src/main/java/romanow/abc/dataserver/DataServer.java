@@ -71,6 +71,9 @@ public class DataServer implements I_DataServer{
     public APICommon common(){ return common; }
     protected LockSleep serverLock = new LockSleep(this);
     //-------------------------------------------------------------------------
+    public WorkSettingsBase getWorksettings(boolean force){
+        return common.getWorkSettings(force);
+        }
     public StringFIFO getConsoleLog() {
         return consoleLog; }
     private void getAnswer(Process p){
