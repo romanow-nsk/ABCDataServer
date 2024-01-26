@@ -6,11 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import romanow.abc.core.*;
 import romanow.abc.core.API.RestAPIBase;
 import romanow.abc.core.API.RestAPIFirstClient;
-import romanow.abc.core.ServerState;
-import romanow.abc.core.UniException;
-import romanow.abc.core.Utils;
 import romanow.abc.core.constants.ValuesBase;
 import romanow.abc.core.dll.DLLModule;
 import romanow.abc.core.entity.Entity;
@@ -43,6 +41,7 @@ import java.util.logging.Logger;
 // AJAX посылает post, а браузер - get
 public class DataServer implements I_DataServer{
     //-------------------- Модель БД сервера --------------------------
+    private boolean consoleLogEnable=true;
     private I_ServerState masterBack=null;          // Обработчик событий ServerState
     protected I_MongoDB mongoDB = new MongoDB36();            // Коннектор MongoDB
     public APIUser users = null;                    // API работы с пользователями
@@ -69,6 +68,9 @@ public class DataServer implements I_DataServer{
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
     public APICommon common(){ return common; }
+    private CommandStringData data=null;
+    private String gblEncoding="";
+    private boolean utf8;
     protected LockSleep serverLock = new LockSleep(this);
     //-------------------------------------------------------------------------
     public WorkSettingsBase getWorksettings(boolean force){
@@ -152,19 +154,30 @@ public class DataServer implements I_DataServer{
         mongoDB = new JDBCFactory().getDriverByIndex(mongoType);
         return restartServer(force);
         }
-    public boolean startServer(int port0, I_ServerState ss,boolean force){
-        return startServer(port0,null,ss,force);
+    public boolean startServer(CommandStringData data0,I_ServerState ss,boolean force){
+        return startServer(data0,ss,force,null);
         }
-    public boolean startServer(int port0, String dbType, I_ServerState ss,boolean force){
-        return startServer(port0,dbType,ss,force,null);
-        }
-    public boolean startServer(int port0, String dbType, I_ServerState ss,boolean force, String newtwork){
+    public boolean startServer(CommandStringData data0,I_ServerState ss,boolean force, Runnable finale){
+        consoleLogEnable = true;
+        data = data0;
         masterBack = ss;
-        port = port0;
+        port = data.getPort();
+        gblEncoding = System.getProperty("file.encoding");
+        utf8 = gblEncoding.equals("UTF-8");
+        final LogStream log = new LogStream(utf8, getConsoleLog(),new I_String() {
+            @Override
+            public void onEvent(String ss) {
+                if (consoleLogEnable)
+                    System.err.println(ss);
+                addToLog(ss);
+                }
+            });
+        System.setOut(new PrintStream(log));
         System.out.println(System.getProperty("user.dir"));
         System.out.println(System.getProperty("os.name"));
         System.out.println("PID="+ Utils.getPID());
         mongoDB = null;
+        String dbType = data.getDbase();
         if (dbType!=null){
             mongoDB = new JDBCFactory().getDriverByName(dbType);
             if (mongoDB==null)
@@ -174,10 +187,19 @@ public class DataServer implements I_DataServer{
             mongoDB = new MongoDB36();
             }
         System.out.println("Установлен тип БД: "+mongoDB.getDriverName());
+        String newtwork = data.getNetwork();
         System.out.println("Установлен тип сети: "+(newtwork==null ? "localhost" : newtwork));
         if (newtwork!=null)
             mongoDB.setNetwork(newtwork);
-        return restartServer(force);
+        boolean bb =  restartServer(force);
+        if (finale!=null)
+            finale.run();
+        boolean dd = consoleLogEnable;
+        if (data.hasConsoleLog())
+            dd = data.isConsoleLogEnable();
+        System.out.println("Вывод лога в консоль: "+(dd ? "разрешен" : "запрещен"));
+        consoleLogEnable = dd;
+        return bb;
         }
     public void setLoggers(){
         //-------------- Уровни логирования не влияют на вывод в консоль -----------------------------

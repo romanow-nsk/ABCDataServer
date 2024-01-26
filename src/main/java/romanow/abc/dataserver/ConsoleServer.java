@@ -17,8 +17,6 @@ public class ConsoleServer {
     protected I_DBTarget dbTarget;
     protected Class apiFace;
     private int lineCount=0;
-    private String gblEncoding="";
-    private boolean utf8;
     private DataServer dataServer = new DataServer();
     private I_ServerState serverBack = new I_ServerState() {
         @Override
@@ -56,34 +54,7 @@ public class ConsoleServer {
         }
     public void startServer(CommandStringData data){
         port = data.getPort();
-        dataServer.startServer(port, data.getDbase(), serverBack,(data.isInit()));
-        gblEncoding = System.getProperty("file.encoding");
-        utf8 = gblEncoding.equals("UTF-8");
-        final LogStream log = new LogStream(utf8, dataServer.getConsoleLog(), new I_String() {
-            @Override
-            public void onEvent(String ss) {
-                dataServer.addToLog(ss);
-                }
-            });
-        if (data.isInit()){
-            Thread tt = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(10);
-                        } catch (InterruptedException e) {}
-                    setTarget();
-                    System.setOut(new PrintStream(log));
-                    System.setErr(new PrintStream(log));
-                    }
-                });
-            tt.setName("ConsoleServer");
-            tt.start();
-            }
-        else {
-            System.setOut(new PrintStream(log));
-            System.setErr(new PrintStream(log));
-            }
+        dataServer.startServer(data, serverBack,true);
         }
 
     public static void main(String args[]) {
