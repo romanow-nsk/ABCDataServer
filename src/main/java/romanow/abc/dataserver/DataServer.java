@@ -1,6 +1,8 @@
 package romanow.abc.dataserver;
 
 import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
 import retrofit2.Call;
@@ -41,7 +43,7 @@ import java.util.logging.Logger;
 // AJAX посылает post, а браузер - get
 public class DataServer implements I_DataServer{
     //-------------------- Модель БД сервера --------------------------
-    private boolean consoleLogEnable=true;
+    @Getter @Setter private boolean consoleLogEnable=true;
     private I_ServerState masterBack=null;          // Обработчик событий ServerState
     protected I_MongoDB mongoDB = new MongoDB36();            // Коннектор MongoDB
     public APIUser users = null;                    // API работы с пользователями
