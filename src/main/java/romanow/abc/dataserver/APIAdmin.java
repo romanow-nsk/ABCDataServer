@@ -316,7 +316,7 @@ public class APIAdmin extends APIBase{
                 return null;
             I_Excel xls = art.getOriginalExt().equals("xlsx") ? new ExcelX() : new Excel();
             db.clearDB();
-            String zz = xls.load(db.dataServerFileDir()+"/"+art.createArtifactServerPath(),db.mongoDB);
+            String zz = xls.load(db.dataServerFileDir()+"/"+art.createArtifactServerPath(-db.timeZoneHours),db.mongoDB);
             db.files.deleteArtifactFile(art);
             db.mongoDB.remove(art);
             db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
@@ -422,7 +422,7 @@ public class APIAdmin extends APIBase{
                 exportToExcel(xls);
             else
                 exportToExcelBlocked(xls,blockSize.getValue());
-            String zz = dir +"/"+art.createArtifactFileName();
+            String zz = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
             xls.save(zz);
             db.mongoDB.update(art);
             ServerEvent event = new ServerEvent(ValuesBase.EventSystem,ValuesBase.ELInfo,"Скачан архив БД",art.getOriginalName())
@@ -448,8 +448,8 @@ public class APIAdmin extends APIBase{
             Process p =null;
             try {
                 String cmd = isWin ?
-                        "mongorestore  /gzip /drop /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
-                        "mongorestore  --gzip --drop --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() ;
+                        "mongorestore  /gzip /drop /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath(-db.timeZoneHours) :
+                        "mongorestore  --gzip --drop --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath(-db.timeZoneHours) ;
                 p=r.exec(cmd);
                 printConsoleOutput(p,isWin);
                 p.destroy();
@@ -492,12 +492,12 @@ public class APIAdmin extends APIBase{
             if (!path.exists())
                 path.mkdir();
             db.mongoDB.add(art);
-            String zz = dir +"/"+art.createArtifactFileName();
+            String zz = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
             Runtime r =Runtime.getRuntime();
             Process p =null;
             try {
-                String cmd = isWin ? "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath() :
-                        "mongodump --db="+dbName+" --gzip --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath();
+                String cmd = isWin ? "mongodump /db:"+dbName+" /gzip /archive:"+ db.dataServerFileDir()+"/"+art.createArtifactServerPath(-db.timeZoneHours) :
+                        "mongodump --db="+dbName+" --gzip --archive="+ db.dataServerFileDir()+"/"+art.createArtifactServerPath(-db.timeZoneHours);
                 p=r.exec(cmd);
                 printConsoleOutput(p,isWin);
                 p.destroy();

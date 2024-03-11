@@ -418,8 +418,10 @@ public class APICommon extends APIBase {
         return getWorkSettings(false);
         }
     public synchronized WorkSettingsBase getWorkSettings(boolean force){
-        if (!force && workSettings!=null)
+        if (!force && workSettings!=null){
+            workSettings.setTimeZoneHours(db.timeZoneHours);
             return workSettings;
+            }
         workSettings = ValuesBase.env().currentWorkSettings();
         try {
             ArrayList<Entity> list = db.mongoDB.getAll(workSettings, ValuesBase.GetAllModeActual, 1);
@@ -427,14 +429,17 @@ public class APICommon extends APIBase {
                 db.mongoDB.clearTable("WorkSettings");
                 db.mongoDB.add(workSettings);
                 System.out.println("Созданы рабочие настройки");
+                workSettings.setTimeZoneHours(db.timeZoneHours);
                 return workSettings;
             } else {
                 System.out.println("Прочитаны рабочие настройки");
                 workSettings = (WorkSettingsBase) list.get(0);
+                workSettings.setTimeZoneHours(db.timeZoneHours);
                 return workSettings;
                 }
             } catch (UniException ee){
                 System.out.println("Ошибка создания рабочих настроек\n"+ee.toString());
+                workSettings.setTimeZoneHours(db.timeZoneHours);
                 return workSettings;
                 }
         }
@@ -914,7 +919,7 @@ public class APICommon extends APIBase {
         File path = new File(dir);
         if (!path.exists())
             path.mkdir();
-        String ss = dir +"/"+art.createArtifactFileName();
+        String ss = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
         String zz = report.testReportContent();
         if (zz!=null){
             db.createHTTPError(res,ValuesBase.HTTPRequestError,zz);

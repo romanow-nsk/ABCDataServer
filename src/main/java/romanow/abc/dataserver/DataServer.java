@@ -66,6 +66,7 @@ public class DataServer implements I_DataServer{
     private DLLModule rootModule=new DLLModule();
     protected ClockController clock=null;           // Поток периодических операицй
     public ErrorCounter deviceErrors = new ErrorCounter();  // Счетчик повторных ошибок
+    public int timeZoneHours=0;                     // Смещение часового пояса относительно сервера установки
     public RestAPIBase localService = null;
     public DataServer(){}
     public I_MongoDB mongoDB(){ return mongoDB; }
@@ -178,6 +179,8 @@ public class DataServer implements I_DataServer{
         System.out.println(System.getProperty("user.dir"));
         System.out.println(System.getProperty("os.name"));
         System.out.println("PID="+ Utils.getPID());
+        if (timeZoneHours!=0)
+            System.out.println("Смещение часового пояса относительно сервера установки: "+timeZoneHours);
         mongoDB = null;
         String dbType = data.getDbase();
         if (dbType!=null){

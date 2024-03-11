@@ -134,7 +134,7 @@ public class APIArtifact extends APIBase{
             File path = new File(dir);
             if (!path.exists())
                 path.mkdir();
-            String fullName = dir + "/" + art.createArtifactFileName();
+            String fullName = dir + "/" + art.createArtifactFileName(db.timeZoneHours);
             OutputStream outputStream = new FileOutputStream(fullName);
             OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
             writer.write(text.getValue());
@@ -169,7 +169,7 @@ public class APIArtifact extends APIBase{
             File path = new File(dir);
             if (!path.exists())
                 path.mkdir();
-            String fullName = dir + "/" + art.createArtifactFileName();
+            String fullName = dir + "/" + art.createArtifactFileName(db.timeZoneHours);
             OutputStream outputStream = new FileOutputStream(fullName);
             if (!base64.getValue()){
                 OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
@@ -193,7 +193,7 @@ public class APIArtifact extends APIBase{
         };
     public boolean deleteArtifactFile(Artifact art){
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName()
-                +"/"+art.createArtifactFileName();
+                +"/"+art.createArtifactFileName(-db.timeZoneHours);
         File file = new File(dir);
         if (!file.exists())
             return false;
@@ -218,9 +218,9 @@ public class APIArtifact extends APIBase{
         String outExt = ValuesBase.ConvertList.get(src.getExt());
         if (outExt==null)
             return;
-        String s1 = dir +"/"+art.createArtifactFileName();
+        String s1 = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
         src.setExt(outExt);
-        String s2 = dir +"/"+art.createArtifactFileName();
+        String s2 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
             FFmpeg ffmpeg = new FFmpeg(db.rootServerFileDir());
             FFprobe ffprobe = new FFprobe(dir);
             FFmpegBuilder builder = new FFmpegBuilder()
@@ -254,9 +254,9 @@ public class APIArtifact extends APIBase{
         if (outExt==null)
             return "Файл "+inExt+" не конвертируется";
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-        String s1 = dir +"/"+art.createArtifactFileName();
+        String s1 = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
         src.setExt(outExt);
-        String s2 = dir +"/"+art.createArtifactFileName();
+        String s2 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
         String cmd = "ffmpeg -i "+ s1 +" -ab 64k -ar 44100 "+s2;
         //String cmd = "ffmpeg -i "+s1+" "+s2+" -r 25 -vcodec mpeg1";
         System.out.println(cmd);
@@ -285,7 +285,7 @@ public class APIArtifact extends APIBase{
         deleteArtifactFile(art);
         art.setFileSize(filePart.getSize());
         art.setDate(new OwnDateTime());             // Обновить время
-        OutputStream outputStream = new FileOutputStream(dir +"/"+art.createArtifactFileName());
+        OutputStream outputStream = new FileOutputStream(dir +"/"+art.createArtifactFileName(db.timeZoneHours));
         IOUtils.copy(inputStream, outputStream);
         filePart.delete();                      // Удалить временный после закачки
         outputStream.close();
@@ -312,7 +312,7 @@ public class APIArtifact extends APIBase{
             File path = new File(dir);
             if (!path.exists())
                 path.mkdir();
-            OutputStream outputStream = new FileOutputStream(dir +"/"+art.createArtifactFileName());
+        OutputStream outputStream = new FileOutputStream(dir +"/"+art.createArtifactFileName(db.timeZoneHours));
             IOUtils.copy(inputStream, outputStream);
             filePart.delete();                      // Удалить временный после закачки
             outputStream.close();
@@ -425,7 +425,7 @@ public class APIArtifact extends APIBase{
                 return null;
                 }
             String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-            String fullname = dir +"/"+art.createArtifactFileName();
+            String fullname = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
             return loadFile(fullname,res)  ? new JEmpty() : null;
         }};
     RouteWrap routeLoadByName = new RouteWrap(){

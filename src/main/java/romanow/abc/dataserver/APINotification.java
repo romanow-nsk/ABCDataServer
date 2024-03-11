@@ -221,7 +221,7 @@ public class APINotification extends APIBase {
                 db.mongoDB.getById(art,event.getArtifact().getOid());
                 MimeBodyPart messageBodyPart = new MimeBodyPart();
                 String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-                String file = dir +"/"+art.createArtifactFileName();
+                String file = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
                 file = file.replace("\\","/");
                 System.out.println(file);
                 String fileName = art.getOriginalName();

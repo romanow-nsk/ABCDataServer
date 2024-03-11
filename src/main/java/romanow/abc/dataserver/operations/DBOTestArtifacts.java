@@ -19,7 +19,7 @@ public class DBOTestArtifacts implements I_SystemOperations{
             for (Entity ent : zz) {
                 Artifact art = (Artifact) ent;
                 String dir = db.dataServerFileDir() + "/" + art.type() + "_" + art.directoryName();
-                String fname = art.createArtifactFileName();
+                String fname = art.createArtifactFileName(-db.timeZoneHours);
                 String ss = dir + "/" + fname;
                 File ff = new File(ss);
                 boolean fail = !ff.exists();

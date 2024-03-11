@@ -54,6 +54,9 @@ public class ConsoleServer {
         }
     public void startServer(CommandStringData data){
         port = data.getPort();
+        dataServer.timeZoneHours = data.getTimeZone();              // Установить из параметров командной строки
+        if (dataServer.timeZoneHours!=0)
+            System.out.println("Смещение часового пояса относительно сервера установки: "+dataServer.timeZoneHours);
         dataServer.startServer(data, serverBack,true);
         }
 

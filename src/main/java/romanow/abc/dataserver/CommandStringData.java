@@ -20,6 +20,7 @@ public class CommandStringData {
     @Getter private String network=null;
     @Getter private boolean consoleLogEnable=false;
     private boolean consoleLog=false;
+    @Getter private int timeZone=0;
     @Getter @Setter private String dbase=null;
     @Getter private String importXLS=null;
     public boolean hasUser(){ return user!=null; }
@@ -75,6 +76,14 @@ public class CommandStringData {
             else
             if (ss.startsWith("network:")){
                 network = ss.substring(8).trim();
+                }
+            else
+            if (ss.startsWith("timezone:")){
+                try {
+                    timeZone = Integer.parseInt(ss.substring(9).trim());
+                    } catch (Exception ee){
+                    errors.addError("Недопустимое значение параметра: "+ss);
+                    }
                 }
             else{
                 if (!isOther(ss))
