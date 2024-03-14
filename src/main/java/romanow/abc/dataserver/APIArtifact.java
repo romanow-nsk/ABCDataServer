@@ -193,7 +193,7 @@ public class APIArtifact extends APIBase{
         };
     public boolean deleteArtifactFile(Artifact art){
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName()
-                +"/"+art.createArtifactFileName(-db.timeZoneHours);
+                +"/"+art.createArtifactFileName(db.timeZoneHours);
         File file = new File(dir);
         if (!file.exists())
             return false;
@@ -218,7 +218,7 @@ public class APIArtifact extends APIBase{
         String outExt = ValuesBase.ConvertList.get(src.getExt());
         if (outExt==null)
             return;
-        String s1 = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
+        String s1 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
         src.setExt(outExt);
         String s2 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
             FFmpeg ffmpeg = new FFmpeg(db.rootServerFileDir());
@@ -254,7 +254,7 @@ public class APIArtifact extends APIBase{
         if (outExt==null)
             return "Файл "+inExt+" не конвертируется";
         String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-        String s1 = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
+        String s1 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
         src.setExt(outExt);
         String s2 = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
         String cmd = "ffmpeg -i "+ s1 +" -ab 64k -ar 44100 "+s2;
@@ -425,7 +425,7 @@ public class APIArtifact extends APIBase{
                 return null;
                 }
             String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
-            String fullname = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
+            String fullname = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
             return loadFile(fullname,res)  ? new JEmpty() : null;
         }};
     RouteWrap routeLoadByName = new RouteWrap(){

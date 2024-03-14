@@ -919,7 +919,7 @@ public class APICommon extends APIBase {
         File path = new File(dir);
         if (!path.exists())
             path.mkdir();
-        String ss = dir +"/"+art.createArtifactFileName(-db.timeZoneHours);
+        String ss = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
         String zz = report.testReportContent();
         if (zz!=null){
             db.createHTTPError(res,ValuesBase.HTTPRequestError,zz);

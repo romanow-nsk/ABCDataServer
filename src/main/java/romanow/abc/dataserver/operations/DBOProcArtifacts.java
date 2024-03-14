@@ -42,7 +42,7 @@ public abstract class DBOProcArtifacts implements I_SystemOperations{
                 art.setParentOid(0);
                 if (testPresent){
                     String dir = db.dataServerFileDir() + "/" + art.type() + "_" + art.directoryName();
-                    String fname = art.createArtifactFileName(-db.timeZoneHours);
+                    String fname = art.createArtifactFileName(db.timeZoneHours);
                     String ss = dir + "/" + fname;
                     File ff = new File(ss);
                     boolean fail = !ff.exists();
@@ -113,7 +113,7 @@ public abstract class DBOProcArtifacts implements I_SystemOperations{
                             artCount++;
                             if (!art.isFileLost()){
                                 String dir = db.dataServerFileDir() + "/" + art.type() + "_" + art.directoryName();
-                                String fname = art.createArtifactFileName(-db.timeZoneHours);
+                                String fname = art.createArtifactFileName(db.timeZoneHours);
                                 String ss = dir + "/" + fname;
                                 File ff = new File(ss);
                                 ff.delete();
