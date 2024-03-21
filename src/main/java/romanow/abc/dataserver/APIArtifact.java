@@ -20,6 +20,7 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import romanow.abc.core.utils.OwnDateTime;
+import romanow.abc.core.utils.Pair;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -202,12 +203,12 @@ public class APIArtifact extends APIBase{
     /** Загрузить текст из потока */
     String loadText(InputStream in) throws Exception {
         InputStreamReader inn = new InputStreamReader(in,"UTF-8");
-        String ss="";
+        StringBuffer ss=new StringBuffer();
         while (true)  {
             int cc = inn.read();
             if (cc==-1)
-            { inn.close(); return ss; }
-            ss +=(char)cc;
+            { inn.close(); return ss.toString(); }
+            ss.append((char) cc);
             }
         }
     public void convertArtifactJar(String dir,Artifact art) throws Exception {
@@ -370,8 +371,25 @@ public class APIArtifact extends APIBase{
                 return new JEmpty();
             }
         };
-    public boolean loadFile(String fname,Response res) throws Exception {
-        //System.out.println("Файл: ["+fname.length()+"] "+fname);
+    public Pair<String,String> loadFileAsString(Artifact art){
+            FileInputStream is=null;
+            try {
+                String dir = db.dataServerFileDir() + "/"+art.type()+"_"+art.directoryName();
+                String fullname = dir +"/"+art.createArtifactFileName(db.timeZoneHours);
+                File ff = new File(fullname);
+                if (!ff.exists()){
+                    return  new Pair("Ошибка сервера данных: файл не найден "+fullname,null);
+                    }
+                is = new FileInputStream(fullname);
+                String ss = loadText(is);
+                is .close();
+                return new Pair<>(null,ss);
+                } catch (Exception ee){
+                    try { is.close(); } catch (Exception ex){}
+                    return new Pair<>(ee.toString(),null);
+                    }
+            }
+    public boolean loadFile(String fname, Response res) throws Exception {
         File ff = new File(fname);
         if (!ff.exists()){
             db.createHTTPError(res,ValuesBase.HTTPNotFound,"Ошибка сервера данных: файл не найден "+fname);
