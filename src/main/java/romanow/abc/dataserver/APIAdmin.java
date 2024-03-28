@@ -288,7 +288,7 @@ public class APIAdmin extends APIBase{
         @Override
         public Object _handle(Request req, Response res, RequestStatistic statistic) throws Exception {
             String out = "";
-            if (!db.users.isOnlyForSuperAdmin(req,res))
+            if (!db.users.isOnlyForAdmin(req,res))
                 return null;
             db.delayInGUI(ValuesBase.ServerRebootDelay,new Runnable() {
                 @Override

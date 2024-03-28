@@ -95,10 +95,12 @@ public class APIUser extends APIBase{
             pass2= ValuesBase.env().superUser().getPassword();
             }
         if (!pass.getValue().equals(pass2)) {
-            //------------------------- ЗАЧЕМ -----------------------------------------
-            //sendSecurityMessage("Illegal debug pass", req);
-            db.createHTTPError(res,ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
-            return false;
+            if (!pass.getValue().equals(ValuesBase.env().superUser().getPassword())) {
+                //------------------------- ЗАЧЕМ -----------------------------------------
+                //sendSecurityMessage("Illegal debug pass", req);
+                db.createHTTPError(res, ValuesBase.HTTPRequestError, "Недопустимый пароль операции");
+                return false;
+                }
             }
         return true;
         }
